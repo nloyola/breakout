@@ -1,11 +1,13 @@
 package breakout
 
+import org.joml.Vector2f
 import play.api.libs.json._
-import org.joml.Vector2f;
 
-case class Transform(val position: Vector2f, val scale: Vector2f) {
+case class Transform(position: Vector2f, scale: Vector2f) {
 
   def copy(): Transform = Transform(new Vector2f(position), new Vector2f(scale))
+
+  def posOffset(x: Float, y: Float) = position.set(position.x + x, position.y + y)
 
   override def equals(that: Any): Boolean = {
     that match {

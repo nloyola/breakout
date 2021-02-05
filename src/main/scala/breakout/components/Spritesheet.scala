@@ -1,9 +1,10 @@
 package breakout.components
 
 import breakout.renderers.Texture
-import org.joml.Vector2f;
-import scala.collection.mutable.ListBuffer
+import org.joml.Vector2f
 import org.slf4j.LoggerFactory
+
+import scala.collection.mutable.ArrayBuffer
 
 class Spritesheet(
     val texture:      Texture,
@@ -11,7 +12,7 @@ class Spritesheet(
     val spriteHeight: Int,
     val numSprites:   Int,
     val spacing:      Int) {
-  val sprites = ListBuffer.empty[Sprite]
+  val sprites = ArrayBuffer.empty[Sprite]
 
   private val logger = LoggerFactory.getLogger(this.getClass)
 
@@ -19,20 +20,20 @@ class Spritesheet(
 
   private def init(): Unit = {
     var currentX = 0
-    var currentY = texture.getHeight() - spriteHeight
+    var currentY = texture.height - spriteHeight
 
-    logger.debug(s"init: texHeight: ${texture.getHeight()}, spriteHeight: $spriteHeight")
+    logger.debug(s"init: texHeight: ${texture.height}, spriteHeight: $spriteHeight")
 
     (0 until numSprites).foreach { i =>
-      val topY    = (currentY + spriteHeight) / texture.getHeight().toFloat
-      val rightX  = (currentX + spriteWidth) / texture.getWidth().toFloat
-      val leftX   = currentX / texture.getWidth().toFloat
-      val bottomY = currentY / texture.getHeight().toFloat
+      val topY    = (currentY + spriteHeight) / texture.height.toFloat
+      val rightX  = (currentX + spriteWidth) / texture.width.toFloat
+      val leftX   = currentX / texture.width.toFloat
+      val bottomY = currentY / texture.height.toFloat
 
-      val texCoords = List(new Vector2f(rightX, topY),
-                           new Vector2f(rightX, bottomY),
-                           new Vector2f(leftX, bottomY),
-                           new Vector2f(leftX, topY)
+      val texCoords = Array[Vector2f](new Vector2f(rightX, topY),
+                                      new Vector2f(rightX, bottomY),
+                                      new Vector2f(leftX, bottomY),
+                                      new Vector2f(leftX, topY)
       )
 
       //logger.debug(s"init: $leftX, $topY, $leftX, $bottomY")
@@ -41,7 +42,7 @@ class Spritesheet(
       sprites += sprite
 
       currentX = currentX + spriteWidth + spacing
-      if (currentX >= texture.getWidth()) {
+      if (currentX >= texture.width) {
         currentX = 0
         currentY -= spriteHeight + spacing
       }

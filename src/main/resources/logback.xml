@@ -1,0 +1,27 @@
+<configuration>
+
+  <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    <!-- encoders are assigned the type
+         ch.qos.logback.classic.encoder.PatternLayoutEncoder by default -->
+    <immediateFlush>true</immediateFlush>
+    <encoder>
+      <!-- Using %L for logging is slow, replace this for production server -->
+      <!-- pattern>%d{HH:mm:ss.SSS} %-5level %c{1}:%L - %msg%n</pattern -->
+      <pattern>%d{HH:mm:ss.SSS} %-5level %c{1}.%M:%L - %message%n%xException{10}</pattern>
+    </encoder>
+  </appender>
+
+  <appender name="FILE" class="ch.qos.logback.core.FileAppender">
+    <file>logs/application.log</file>
+    <encoder>
+      <pattern>%date - [%level] - from %logger in %thread %message%n%xException</pattern>
+    </encoder>
+  </appender>
+
+  <logger name="breakout" level="INFO" />
+
+  <root level="INFO">
+    <appender-ref ref="STDOUT" />
+    <!-- appender-ref ref="FILE" / -->
+  </root>
+</configuration>

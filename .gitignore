@@ -6,3 +6,4 @@ project/project/
 /project/.bloop/
 /logs/
 /.idea/
+/.bsp/

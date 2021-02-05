@@ -1,19 +1,18 @@
 package breakout.components
 
-import imgui.ImGui
-import breakout.GameObject
+import breakout.gameobjects.AbstractGameObject
 import play.api.libs.json._
-import org.joml.{ Vector3f, Vector4f }
-import org.slf4j.Logger
-import scala.reflect.runtime.{ universe => ru }
+//import scala.reflect.runtime.{ universe => ru }
 
 trait Component {
 
-  protected val log: Logger
-
   protected val typeName: String
 
-  var gameObject: Option[GameObject]
+  protected var _gameObject: Option[AbstractGameObject] = None
+
+  def gameObject = _gameObject
+
+  def gameObject_=(obj: AbstractGameObject) = _gameObject = Some(obj)
 
   def start(): Unit
 

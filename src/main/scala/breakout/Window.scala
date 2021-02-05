@@ -1,21 +1,22 @@
 package breakout
 
-import org.lwjgl.glfw._
-import org.lwjgl.opengl._
+import breakout.scenes.{ BreakoutScene, Scene }
 import org.lwjgl.glfw.Callbacks._
 import org.lwjgl.glfw.GLFW._
+import org.lwjgl.glfw._
 import org.lwjgl.opengl.GL11._
+import org.lwjgl.opengl._
 import org.lwjgl.system.MemoryUtil._
 
-class Window {
+object Window {
 
-  var _width = 1920
+  private val title = "Breakout"
 
-  var _height = 1080
+  private var _width = 1920
 
-  val title = "Breakout"
+  private var _height = 1080
 
-  var currentScene: Option[Scene] = None
+  private var currentScene: Option[Scene] = None
 
   // The window handle
   private lazy val window = glfwCreateWindow(_width, _height, title, NULL, NULL)
@@ -29,8 +30,8 @@ class Window {
 
   def scene_=(newScene: Int) = {
     newScene match {
-      case 0 => currentScene = Some(new LevelEditorScene)
-      case 1 => currentScene = Some(new LevelScene)
+      case 0 => currentScene = Some(new BreakoutScene)
+      // case 1 => currentScene = Some(new LevelEditorScene)
       case _ => throw new Error(s"Unknown scene: $newScene")
     }
 
@@ -55,19 +56,6 @@ class Window {
   def getHeight: Int = _height
 
   // def height_=(h: Int) = _height = h
-
-  def run(): Unit = {
-    init()
-    loop()
-
-    // Free the window callbacks and destroy the window
-    glfwFreeCallbacks(window)
-    glfwDestroyWindow(window)
-
-    // Terminate GLFW and free the error callback
-    glfwTerminate
-    glfwSetErrorCallback(null).free
-  }
 
   private def init(): Unit = {
     // Setup an error callback. The default implementation
@@ -99,16 +87,26 @@ class Window {
     //     }
     //   })
 
+    def keyCallback(window: Long, key: Int, scancode: Int, action: Int, mods: Int) = {
+      // temporary - remove after game is implemented
+      if ((key == GLFW_KEY_ESCAPE) && (action == GLFW_RELEASE)) {
+        glfwSetWindowShouldClose(window, true)
+      }
+
+      KeyListener.keyCallback(window, key, scancode, action, mods)
+    }
+
     glfwSetCursorPosCallback(window, MouseListener.mousePosCallback)
     glfwSetMouseButtonCallback(window, MouseListener.mouseButtonCallback)
     glfwSetScrollCallback(window, MouseListener.mouseScrollCallback)
-    glfwSetKeyCallback(window, KeyListener.keyCallback)
-    glfwSetWindowSizeCallback(window,
-                              (w: Long, newWidth: Int, newHeight: Int) => {
-                                _width = newWidth
-                                _height = newHeight
-                              }
-    )
+    glfwSetKeyCallback(window, keyCallback)
+
+    def windowSizeCallback(w: Long, newWidth: Int, newHeight: Int) = {
+      _width = newWidth
+      _height = newHeight
+    }
+
+    glfwSetWindowSizeCallback(window, windowSizeCallback)
 
     // Make the OpenGL context current
     glfwMakeContextCurrent(window)
@@ -126,10 +124,8 @@ class Window {
 
     glEnable(GL_BLEND)
     glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA)
-    imguiLayer = Some(new ImGuiLayer(window))
-    imguiLayer.foreach(_.initImGui())
 
-    changeScene(0)
+    scene = 0
   }
 
   private def loop(): Unit = {
@@ -165,13 +161,17 @@ class Window {
     }
   }
 
-}
+  def run(): Unit = {
+    init()
+    loop()
 
-object Window {
+    // Free the window callbacks and destroy the window
+    glfwFreeCallbacks(window)
+    glfwDestroyWindow(window)
 
-  def main(args: Array[String]): Unit = {
-    val window = new Window
-    window.run()
+    // Terminate GLFW and free the error callback
+    glfwTerminate
+    glfwSetErrorCallback(null).free
   }
 
 }

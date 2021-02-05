@@ -1,5 +1,5 @@
-import play.api.libs.json._
 import org.joml.{ Vector2f, Vector3f, Vector4f }
+import play.api.libs.json._
 
 package object breakout {
 

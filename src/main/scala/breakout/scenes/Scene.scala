@@ -1,13 +1,14 @@
 package breakout.scenes
 
-import imgui.ImGui;
+import breakout.renderers.Renderer
+import breakout.Camera
+import breakout.gameobjects.AbstractGameObject
+import org.slf4j.LoggerFactory
+import play.api.libs.json._
+
 import java.io._
 import java.nio.file.{ Files, Paths }
-import breakout.{ Camera, GameObject }
-import breakout.renderers.Renderer
-import play.api.libs.json._
-import org.slf4j.LoggerFactory
-import scala.collection.mutable.ListBuffer
+import scala.collection.mutable.ArrayBuffer
 import scala.io.Source
 
 trait Scene {
@@ -15,10 +16,10 @@ trait Scene {
   private val logger = LoggerFactory.getLogger(this.getClass)
 
   protected val renderer = new Renderer
-  protected val camera: Camera
+  protected val _camera: Camera
   protected var isRunning   = false
-  protected val gameObjects = ListBuffer.empty[GameObject]
-  protected var activeGameObject: Option[GameObject] = None
+  protected val gameObjects = ArrayBuffer.empty[AbstractGameObject]
+  protected var activeGameObject: Option[AbstractGameObject] = None
   protected var levelLoaded = false
 
   def init(): Unit
@@ -33,7 +34,7 @@ trait Scene {
     isRunning = true
   }
 
-  def addGameObjectToScene(obj: GameObject): Unit = {
+  def addGameObjectToScene(obj: AbstractGameObject): Unit = {
     gameObjects += obj
     if (isRunning) {
       obj.start()
@@ -41,18 +42,7 @@ trait Scene {
     }
   }
 
-  def getCamera(): Camera = camera
-
-  def sceneImgui(): Unit = {
-    activeGameObject.foreach { go =>
-      ImGui.begin("Instpector")
-      go.imgui();
-      ImGui.end
-    }
-    imgui()
-  }
-
-  def imgui(): Unit = {}
+  def camera: Camera = _camera
 
   def saveExit(): Unit = {
     val filename = "level.json"
@@ -71,13 +61,13 @@ trait Scene {
         finally source.close
 
       if (!contents.isEmpty) {
-        Json.parse(contents).validate[ListBuffer[GameObject]] match {
-          case e:    JsError                           => logger.error(s"could not read level data: $e")
-          case objs: JsSuccess[ListBuffer[GameObject]] =>
+        Json.parse(contents).validate[ArrayBuffer[AbstractGameObject]] match {
+          case e:    JsError                                    => logger.error(s"could not read level data: $e")
+          case objs: JsSuccess[ArrayBuffer[AbstractGameObject]] =>
             gameObjects.clear()
-            objs.value.foreach { go =>
-              addGameObjectToScene(go)
-              go.components.foreach(_.gameObject = Some(go))
+            objs.value.foreach { obj =>
+              addGameObjectToScene(obj)
+              obj.components.foreach(_.gameObject = obj)
             }
             levelLoaded = true
         }

@@ -2,8 +2,7 @@ package breakout.components
 
 import breakout._
 import breakout.renderers.Texture
-import org.joml.Vector2f
-import org.joml.Vector4f
+import org.joml.{ Vector2f, Vector4f }
 import org.slf4j.LoggerFactory
 import play.api.libs.json._
 
@@ -12,22 +11,21 @@ case class SpriteRenderer(sprite: Sprite, color: Vector4f) extends Component {
   protected val log      = LoggerFactory.getLogger(this.getClass)
   protected val typeName = "spriteRenderer"
 
-  var gameObject:    Option[GameObject] = None
-  var lastTransform: Option[Transform]  = None
-  var _isDirty = true
+  private var lastTransform: Option[Transform] = None
+  private var _isDirty = true
 
   override def start(): Unit = {
-    lastTransform = gameObject.map(go => go.transform.copy())
+    lastTransform = gameObject.map(_.transform.copy())
   }
 
   override def update(dt: Float): Unit = {
     for {
-      lt <- lastTransform
-      go <- gameObject
+      lt  <- lastTransform
+      obj <- gameObject
     } yield {
-      if (!lt.equals(go.transform)) {
-        log.info(s"last transform: $lt")
-        gameObject = Some(go.copy(transform = lt.copy()))
+      if (!lt.equals(obj.transform)) {
+        log.trace(s"last transform: $lt, obj transform: ${obj.transform}")
+        lastTransform = Some(obj.transform.copy())
         _isDirty = true
       }
     }
@@ -36,7 +34,7 @@ case class SpriteRenderer(sprite: Sprite, color: Vector4f) extends Component {
 
   def texture(): Option[Texture] = sprite.texture
 
-  def texCoords(): List[Vector2f] = sprite.texCoords
+  def texCoords(): Array[Vector2f] = sprite.texCoords
 
   def setColor(c: Vector4f): Unit = {
     if (!color.equals(c)) {
@@ -55,9 +53,10 @@ case class SpriteRenderer(sprite: Sprite, color: Vector4f) extends Component {
 
 object SpriteRenderer {
 
-  def apply(sprite: Sprite): SpriteRenderer = SpriteRenderer(sprite, new Vector4f(1, 1, 1, 1))
+  def apply(sprite: Sprite): SpriteRenderer =
+    SpriteRenderer(sprite = sprite, color = new Vector4f(1, 1, 1, 1))
 
-  def apply(color: Vector4f): SpriteRenderer = SpriteRenderer(Sprite(None), color)
+  def apply(color: Vector4f): SpriteRenderer = SpriteRenderer(Sprite(), color)
 
   implicit val spriteRendererFormat: Format[SpriteRenderer] = Json.format[SpriteRenderer]
 

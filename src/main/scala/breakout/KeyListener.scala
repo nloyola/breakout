@@ -1,7 +1,7 @@
 package breakout
 
-import org.lwjgl.glfw.GLFW.GLFW_PRESS
-import org.lwjgl.glfw.GLFW.GLFW_RELEASE
+import org.lwjgl.glfw.GLFW.{ GLFW_PRESS, GLFW_RELEASE }
+
 import scala.collection.mutable.ArrayBuffer
 
 object KeyListener {
