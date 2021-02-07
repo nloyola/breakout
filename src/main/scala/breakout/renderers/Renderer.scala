@@ -2,20 +2,17 @@ package breakout.renderers
 
 import breakout.gameobjects.AbstractGameObject
 import breakout.components.SpriteRenderer
-import org.slf4j.LoggerFactory
+//import org.slf4j.LoggerFactory
 
 import scala.collection.mutable.ArrayBuffer
 
 class Renderer {
+  //private val logger         = LoggerFactory.getLogger(this.getClass)
   private val MAX_BATCH_SIZE = 1000
   private var batches        = ArrayBuffer.empty[RenderBatch]
-  private val logger         = LoggerFactory.getLogger(this.getClass)
 
   def add(obj: AbstractGameObject): Unit = {
-    obj.component[SpriteRenderer]().foreach { spr =>
-      logger.debug(s"add: spr: $spr")
-      add(spr)
-    }
+    obj.component[SpriteRenderer]().foreach(add)
   }
 
   private def add(sprite: SpriteRenderer): Unit = {

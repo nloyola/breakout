@@ -1,12 +1,12 @@
 package breakout.scenes
 
-import breakout.components._
-import breakout.gameobjects.Paddle
+import breakout.gameobjects.{ Background, Paddle }
 import breakout.util.AssetPool
 import breakout.Camera
 import breakout.gameobjects.AbstractGameObject
 import org.joml.{ Vector2f }
 import org.slf4j.LoggerFactory
+import scala.collection.mutable.ArrayBuffer
 
 class BreakoutScene extends Scene {
 
@@ -18,7 +18,7 @@ class BreakoutScene extends Scene {
 
   protected val _camera = new Camera(new Vector2f(0f, 0f), width, height)
 
-  private var obj1: AbstractGameObject = null
+  private val objs = ArrayBuffer.empty[AbstractGameObject]
 
   // private var sprites: Option[Spritesheet] = None
 
@@ -30,14 +30,11 @@ class BreakoutScene extends Scene {
       activeGameObject = Some(gameObjects(0))
     } else {
 
-      obj1 = new Paddle(1)
-      addGameObjectToScene(obj1)
-      activeGameObject = Some(obj1)
+      objs += new Paddle(width, height, 1)
+      objs += new Background(width, height, -10)
 
-      // val obj2 = GameObject("Object 2", new Transform(new Vector2f(400, 100), new Vector2f(256, 256)), 1)
-      //obj2.addComponent(new SpriteRenderer(sheet.getSprite(7)))
-      // obj2.addComponent(SpriteRenderer(Sprite(Some(AssetPool.getTexture("assets/images/blendImage2.png")))))
-      // addGameObjectToScene(obj2)
+      objs.foreach(addGameObjectToScene)
+      activeGameObject = Some(objs(0))
     }
   }
 
@@ -51,10 +48,6 @@ class BreakoutScene extends Scene {
 
   private def loadResources(): Unit = {
     AssetPool.shader("assets/shaders/default.glsl")
-
-    val assetName = "assets/images/paddle.png"
-    AssetPool.addSpritesheet(assetName, new Spritesheet(AssetPool.texture(assetName), 16, 16, 81, 0));
-
     ()
   }
 

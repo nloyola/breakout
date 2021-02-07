@@ -42,7 +42,6 @@ class RenderBatch(private val maxBatchSize: Int, private val zIndex: Int) extend
   val textures   = ArrayBuffer.empty[Texture]
   var vaoID      = 0
   var vboID      = 0
-  var sharder    = AssetPool.shader("assets/shaders/default.glsl")
   var numSprites = 0
   var _hasRoom   = true
 
@@ -156,7 +155,7 @@ class RenderBatch(private val maxBatchSize: Int, private val zIndex: Int) extend
     // 6 indices per quad (3 per triangle)
     val elements = new Array[Int](6 * maxBatchSize)
 
-    def loadElementIndices(index: Int): Unit = {
+    (0 until maxBatchSize).foreach { index =>
       val offsetArrayIndex = 6 * index;
       val offset           = 4 * index;
 
@@ -170,10 +169,6 @@ class RenderBatch(private val maxBatchSize: Int, private val zIndex: Int) extend
       elements(offsetArrayIndex + 3) = offset + 0;
       elements(offsetArrayIndex + 4) = offset + 2;
       elements(offsetArrayIndex + 5) = offset + 1;
-    }
-
-    (0 until maxBatchSize).foreach { i =>
-      loadElementIndices(i)
     }
     elements
   }

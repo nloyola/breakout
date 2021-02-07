@@ -2,4 +2,4 @@
 
 [OpenGL Breakout](https://learnopengl.com/In-Practice/2D-Game/Breakout)
 
-* [Code repository](https://github.com/JoeyDeVries/LearnOpenGL/tree/master/resources/textures)
+* [Code repository](https://github.com/JoeyDeVries/LearnOpenGL)

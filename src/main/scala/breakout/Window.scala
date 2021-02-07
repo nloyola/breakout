@@ -78,15 +78,6 @@ object Window {
       throw new IllegalStateException("Failed to create the GLFW window.")
     }
 
-    // // Setup a key callback. It will be called every time a key is pressed, repeated or released.
-    // glfwSetKeyCallback(
-    //   window,
-    //   (window: Long, key: Int, scancode: Int, action: Int, mods: Int) => {
-    //     if ((key == GLFW_KEY_ESCAPE) && (action == GLFW_RELEASE)) {
-    //       glfwSetWindowShouldClose(window, true)
-    //     }
-    //   })
-
     def keyCallback(window: Long, key: Int, scancode: Int, action: Int, mods: Int) = {
       // temporary - remove after game is implemented
       if ((key == GLFW_KEY_ESCAPE) && (action == GLFW_RELEASE)) {
@@ -129,10 +120,10 @@ object Window {
   }
 
   private def loop(): Unit = {
-    val r = 1.0f
-    val b = 1.0f
-    val g = 1.0f
-    val a = 1.0f
+    val r = 1f
+    val b = 1f
+    val g = 1f
+    val a = 1f
 
     var beginTime = glfwGetTime.toFloat
     var endTime   = 0.0f
