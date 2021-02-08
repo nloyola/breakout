@@ -2,7 +2,7 @@ package breakout.scenes
 
 import breakout.renderers.Renderer
 import breakout.Camera
-import breakout.gameobjects.AbstractGameObject
+import breakout.entities.Entity
 import org.slf4j.LoggerFactory
 import play.api.libs.json._
 
@@ -18,8 +18,8 @@ trait Scene {
   protected val renderer = new Renderer
   protected val _camera: Camera
   protected var isRunning   = false
-  protected val gameObjects = ArrayBuffer.empty[AbstractGameObject]
-  protected var activeGameObject: Option[AbstractGameObject] = None
+  protected val gameObjects = ArrayBuffer.empty[Entity]
+  protected var activeGameObject: Option[Entity] = None
   protected var levelLoaded = false
 
   def init(): Unit
@@ -34,7 +34,7 @@ trait Scene {
     isRunning = true
   }
 
-  def addGameObjectToScene(obj: AbstractGameObject): Unit = {
+  def addGameObjectToScene(obj: Entity): Unit = {
     gameObjects += obj
     if (isRunning) {
       obj.start()
@@ -61,9 +61,9 @@ trait Scene {
         finally source.close
 
       if (!contents.isEmpty) {
-        Json.parse(contents).validate[ArrayBuffer[AbstractGameObject]] match {
+        Json.parse(contents).validate[ArrayBuffer[Entity]] match {
           case e:    JsError                                    => logger.error(s"could not read level data: $e")
-          case objs: JsSuccess[ArrayBuffer[AbstractGameObject]] =>
+          case objs: JsSuccess[ArrayBuffer[Entity]] =>
             gameObjects.clear()
             objs.value.foreach { obj =>
               addGameObjectToScene(obj)

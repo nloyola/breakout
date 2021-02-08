@@ -1,4 +1,4 @@
-package breakout.gameobjects
+package breakout.entities
 
 import breakout.components.Component
 import play.api.libs.json._
@@ -7,7 +7,7 @@ import scala.collection.mutable.ArrayBuffer
 import scala.reflect.ClassTag
 import breakout.Transform
 
-trait AbstractGameObject {
+trait Entity {
 
   protected val name: String
 
@@ -58,21 +58,11 @@ trait AbstractGameObject {
 
 }
 
-case class GameObject(name: String, _transform: Transform, _zIndex: Int, _components: ArrayBuffer[Component])
-    extends AbstractGameObject {
+object Entity {
 
-  def posOffset(x: Float, y: Float): Unit = {
-    _transform.posOffset(x, y)
-    ()
-  }
+  implicit val abstractGameObjectFormat: Format[Entity] = new Format[Entity] {
 
-}
-
-object AbstractGameObject {
-
-  implicit val abstractGameObjectFormat: Format[AbstractGameObject] = new Format[AbstractGameObject] {
-
-    override def writes(c: AbstractGameObject): JsValue = {
+    override def writes(c: Entity): JsValue = {
       val objJson = c match {
         case i: GameObject => Json.toJson(i)
         case i: Paddle     => Json.toJson(i)
@@ -82,22 +72,11 @@ object AbstractGameObject {
       Json.obj("name" -> c.name) ++ objJson.as[JsObject]
     }
 
-    override def reads(json: JsValue): JsResult[AbstractGameObject] =
+    override def reads(json: JsValue): JsResult[Entity] =
       (json \ "name") match {
         case JsDefined(JsString("spriteRenderer")) => json.validate[GameObject]
         case JsDefined(JsString("rigidBody"))      => json.validate[Paddle]
         case _                                     => JsError("error")
       }
   }
-}
-
-object GameObject {
-
-  def apply(name: String): GameObject = GameObject(name, Transform(), 0, ArrayBuffer.empty[Component])
-
-  def apply(name: String, transform: Transform, zIndex: Int): GameObject =
-    GameObject(name, transform, zIndex, ArrayBuffer.empty[Component])
-
-  implicit val gameObjectFormat: Format[GameObject] = Json.format[GameObject]
-
 }

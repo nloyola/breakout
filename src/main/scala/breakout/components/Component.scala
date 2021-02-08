@@ -1,6 +1,6 @@
 package breakout.components
 
-import breakout.gameobjects.AbstractGameObject
+import breakout.entities.Entity
 import play.api.libs.json._
 //import scala.reflect.runtime.{ universe => ru }
 
@@ -8,11 +8,11 @@ trait Component {
 
   protected val typeName: String
 
-  protected var _gameObject: Option[AbstractGameObject] = None
+  protected var _gameObject: Option[Entity] = None
 
   def gameObject = _gameObject
 
-  def gameObject_=(obj: AbstractGameObject) = _gameObject = Some(obj)
+  def gameObject_=(obj: Entity) = _gameObject = Some(obj)
 
   def start(): Unit
 

@@ -1,4 +1,4 @@
-package breakout.gameobjects
+package breakout.entities
 
 import breakout.Transform
 import breakout.components.{ Component, Sprite, SpriteRenderer }
@@ -9,7 +9,7 @@ import scala.collection.mutable.ArrayBuffer
 import breakout.util.AssetPool
 
 case class Background(gameWidth: Float, gameHeight: Float, protected val _zIndex: Int)
-    extends AbstractGameObject {
+    extends Entity {
 
   protected val name = "Background"
 

@@ -1,6 +1,6 @@
 package breakout.renderers
 
-import breakout.gameobjects.AbstractGameObject
+import breakout.entities.Entity
 import breakout.components.SpriteRenderer
 //import org.slf4j.LoggerFactory
 
@@ -11,7 +11,7 @@ class Renderer {
   private val MAX_BATCH_SIZE = 1000
   private var batches        = ArrayBuffer.empty[RenderBatch]
 
-  def add(obj: AbstractGameObject): Unit = {
+  def add(obj: Entity): Unit = {
     obj.component[SpriteRenderer]().foreach(add)
   }
 

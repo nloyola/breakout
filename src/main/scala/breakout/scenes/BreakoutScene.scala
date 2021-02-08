@@ -1,9 +1,9 @@
 package breakout.scenes
 
-import breakout.gameobjects.{ Background, Paddle }
+import breakout.entities.{ Background, Paddle }
 import breakout.util.AssetPool
 import breakout.Camera
-import breakout.gameobjects.AbstractGameObject
+import breakout.entities.Entity
 import org.joml.{ Vector2f }
 import org.slf4j.LoggerFactory
 import scala.collection.mutable.ArrayBuffer
@@ -18,7 +18,7 @@ class BreakoutScene extends Scene {
 
   protected val _camera = new Camera(new Vector2f(0f, 0f), width, height)
 
-  private val objs = ArrayBuffer.empty[AbstractGameObject]
+  private val objs = ArrayBuffer.empty[Entity]
 
   // private var sprites: Option[Spritesheet] = None
 

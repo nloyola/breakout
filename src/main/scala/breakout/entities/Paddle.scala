@@ -1,4 +1,4 @@
-package breakout.gameobjects
+package breakout.entities
 
 import breakout.Transform
 import breakout.components.{ Component, RigidBody, Sprite, SpriteRenderer }
@@ -10,8 +10,7 @@ import org.lwjgl.glfw.GLFW.{ GLFW_KEY_A, GLFW_KEY_D }
 import scala.collection.mutable.ArrayBuffer
 import breakout.util.AssetPool
 
-case class Paddle(gameWidth: Float, gameHeight: Float, protected val _zIndex: Int)
-    extends AbstractGameObject {
+case class Paddle(gameWidth: Float, gameHeight: Float, protected val _zIndex: Int) extends Entity {
 
   protected val name = "Paddle"
 
