@@ -95,9 +95,12 @@ object Window {
     def windowSizeCallback(w: Long, newWidth: Int, newHeight: Int) = {
       _width = newWidth
       _height = newHeight
+
+      glViewport(0, 0, newWidth, newHeight);
     }
 
-    glfwSetWindowSizeCallback(window, windowSizeCallback)
+    //glfwSetWindowSizeCallback(window, windowSizeCallback)
+    glfwSetFramebufferSizeCallback(window, windowSizeCallback)
 
     // Make the OpenGL context current
     glfwMakeContextCurrent(window)
