@@ -1,37 +1,30 @@
 package breakout.entities
 
 import breakout.Transform
-import breakout.components.{ Component, RigidBody, Sprite, SpriteRenderer }
+import breakout.components.{ RigidBody, Sprite, SpriteRenderer }
 import org.joml.{ Vector2f, Vector3f }
 import play.api.libs.json._
 import breakout.{ KeyListener }
 import org.lwjgl.glfw.GLFW.{ GLFW_KEY_A, GLFW_KEY_D }
 
-import scala.collection.mutable.ArrayBuffer
 import breakout.util.AssetPool
 
 case class Paddle(gameWidth: Float, gameHeight: Float, protected val _zIndex: Int) extends Entity {
 
-  protected val name = "Paddle"
+  val name = "Paddle"
 
   private lazy val texture = AssetPool.texture("assets/images/paddle.png")
 
   protected lazy val _transform =
-    Transform(new Vector2f(0, 10), new Vector2f(texture.width / 4f, texture.height / 4f))
+    Transform(new Vector2f(0, gameHeight - 10 - texture.height / 4f),
+              new Vector2f(texture.width / 4f, texture.height / 4f)
+    )
 
   val rigidBody = RigidBody(1, new Vector3f(0, 0, 0), 0f)
-
-  protected lazy val _components =
-    ArrayBuffer[Component](SpriteRenderer(sprite = Sprite(texture)), rigidBody)
 
   private val paddleAbsSpeed = 500f
 
   private val moveRangeX = new Vector2f(0, gameWidth - _transform.scale.x)
-
-  def posOffset(x: Float, y: Float): Unit = {
-    transform.posOffset(x, y)
-    ()
-  }
 
   override def update(dt: Float): Unit = {
     val velocity =
@@ -53,8 +46,8 @@ case class Paddle(gameWidth: Float, gameHeight: Float, protected val _zIndex: In
     ()
   }
 
-  components.foreach(addComponent)
-
+  addComponent(SpriteRenderer(sprite = Sprite(texture)))
+  addComponent(rigidBody)
 }
 
 object Paddle {

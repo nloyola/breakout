@@ -9,13 +9,13 @@ import breakout.Transform
 
 trait Entity {
 
-  protected val name: String
+  val name: String
 
   protected val _transform: Transform
 
   protected val _zIndex: Int
 
-  protected val _components: ArrayBuffer[Component]
+  protected val _components = ArrayBuffer.empty[Component]
 
   def transform = _transform
 
@@ -32,7 +32,7 @@ trait Entity {
 
   def addComponent(c: Component): Unit = {
     _components += c
-    c.gameObject = this
+    c.entity = this
     ()
   }
 
@@ -52,7 +52,15 @@ trait Entity {
 
   def height = _transform.scale.y
 
-  def posOffset(x: Float, y: Float): Unit
+  def posOffset(x: Float, y: Float): Unit = {
+    _transform.posOffset(x, y)
+    ()
+  }
+
+  def scale(x: Float, y: Float): Unit = {
+    _transform.setScale(x, y)
+    ()
+  }
 
   override def toString: String = s"name: $name, components: ${_components.length}, zIndex: $zIndex"
 

@@ -9,6 +9,8 @@ case class Transform(position: Vector2f, scale: Vector2f) {
 
   def posOffset(x: Float, y: Float) = position.set(position.x + x, position.y + y)
 
+  def setScale(x: Float, y: Float) = scale.set(x, y)
+
   override def equals(that: Any): Boolean = {
     that match {
       case t: Transform => position.equals(t.position) && scale.equals(t.scale)

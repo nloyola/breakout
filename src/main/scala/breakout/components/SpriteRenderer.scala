@@ -15,13 +15,13 @@ case class SpriteRenderer(sprite: Sprite, color: Vector4f) extends Component {
   private var _isDirty = true
 
   override def start(): Unit = {
-    lastTransform = gameObject.map(_.transform.copy())
+    lastTransform = entity.map(_.transform.copy())
   }
 
   override def update(dt: Float): Unit = {
     for {
       lt  <- lastTransform
-      obj <- gameObject
+      obj <- entity
     } yield {
       if (!lt.equals(obj.transform)) {
         log.trace(s"last transform: $lt, obj transform: ${obj.transform}")
@@ -32,9 +32,9 @@ case class SpriteRenderer(sprite: Sprite, color: Vector4f) extends Component {
     ()
   }
 
-  def texture(): Option[Texture] = sprite.texture
+  def texture: Option[Texture] = sprite.texture
 
-  def texCoords(): Array[Vector2f] = sprite.texCoords
+  def texCoords: Array[Vector2f] = sprite.texCoords
 
   def setColor(c: Vector4f): Unit = {
     if (!color.equals(c)) {
@@ -43,11 +43,11 @@ case class SpriteRenderer(sprite: Sprite, color: Vector4f) extends Component {
     }
   }
 
-  def isDirty(): Boolean = _isDirty
+  def isDirty: Boolean = _isDirty
 
   def setClean(): Unit = _isDirty = false
 
-  override def toString: String = s"gameObject: $gameObject, isDirty: ${_isDirty})"
+  override def toString: String = s"entity: $entity, isDirty: ${_isDirty})"
 
 }
 

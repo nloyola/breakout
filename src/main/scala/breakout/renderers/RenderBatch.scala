@@ -82,7 +82,7 @@ class RenderBatch(private val maxBatchSize: Int, private val zIndex: Int) extend
     sprites(index) = spr
     numSprites = numSprites + 1
 
-    spr.texture().foreach { t =>
+    spr.texture.foreach { t =>
       if (!textures.contains(t)) {
         //logger.debug(s"addSprite: added texture $t")
         textures += t
@@ -92,7 +92,7 @@ class RenderBatch(private val maxBatchSize: Int, private val zIndex: Int) extend
     // Add properties to local vertices array
     loadVertexProperties(index)
 
-    _hasRoom = numSprites >= maxBatchSize
+    _hasRoom = !(numSprites >= maxBatchSize)
   }
 
   def render(): Unit = {
@@ -101,7 +101,7 @@ class RenderBatch(private val maxBatchSize: Int, private val zIndex: Int) extend
     //logger.debug(s"render: numSprites: $numSprites")
     (0 until numSprites).foreach { index =>
       val sprite = sprites(index)
-      if (sprite.isDirty()) {
+      if (sprite.isDirty) {
         loadVertexProperties(index)
         sprite.setClean()
         rebufferData = true
@@ -180,32 +180,24 @@ class RenderBatch(private val maxBatchSize: Int, private val zIndex: Int) extend
     var offset = index * 4 * VERTEX_SIZE
 
     val color     = sprite.color
-    val texCoords = sprite.texCoords()
+    val texCoords = sprite.texCoords
     var texId     = 0;
 
-    sprite.texture().foreach { tex =>
+    sprite.texture.foreach { tex =>
       texId = textures.indexOf(tex) + 1
     }
 
-    sprite.gameObject.foreach { go =>
-      val transform = go.transform
+    sprite.entity.foreach { entity =>
+      logger.trace(s"entity: ${entity.name}, index: $index")
+      val transform = entity.transform
 
       // Add vertices with the appropriate properties
-      var xAdd = 1.0f
-      var yAdd = 1.0f
-
-      (0 until 4).foreach { i =>
-        if (i == 1) {
-          yAdd = 0.0f
-        } else if (i == 2) {
-          xAdd = 0.0f
-        } else if (i == 3) {
-          yAdd = 1.0f
-        }
-
+      Array((0, 1f, 1f), (1, 1f, 0f), (2, 0f, 0f), (3, 0f, 1f)).foreach { case (v, xAdd, yAdd) =>
         // Load position
         vertices(offset) = transform.position.x + (xAdd * transform.scale.x)
         vertices(offset + 1) = transform.position.y + (yAdd * transform.scale.y)
+
+        logger.trace(s"${entity.name}, $index, $v, ${vertices(offset)}, ${vertices(offset + 1)}")
 
         // Load color
         vertices(offset + 2) = color.x
@@ -214,15 +206,11 @@ class RenderBatch(private val maxBatchSize: Int, private val zIndex: Int) extend
         vertices(offset + 5) = color.w
 
         // Load texture coordinates
-        vertices(offset + 6) = texCoords(i).x
-        vertices(offset + 7) = texCoords(i).y
+        vertices(offset + 6) = texCoords(v).x
+        vertices(offset + 7) = texCoords(v).y
 
         // Load texture id
         vertices(offset + 8) = texId.toFloat
-
-        logger.debug(
-          s"loadVertexProperties: index: $index, offset: $offset, texId: $texId, texCoords: ${texCoords(i).x}, ${texCoords(i).y}"
-        )
 
         offset += VERTEX_SIZE
       }

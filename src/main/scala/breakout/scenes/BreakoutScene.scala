@@ -1,12 +1,10 @@
 package breakout.scenes
 
-import breakout.entities.{ Background, Paddle }
+import breakout.games.BreakoutGame
 import breakout.util.AssetPool
 import breakout.Camera
-import breakout.entities.Entity
 import org.joml.{ Vector2f }
 import org.slf4j.LoggerFactory
-import scala.collection.mutable.ArrayBuffer
 
 class BreakoutScene extends Scene {
 
@@ -18,23 +16,17 @@ class BreakoutScene extends Scene {
 
   protected val _camera = new Camera(new Vector2f(0f, 0f), width, height)
 
-  private val objs = ArrayBuffer.empty[Entity]
-
-  // private var sprites: Option[Spritesheet] = None
+  private val game = new BreakoutGame(width, height)
 
   def init(): Unit = {
     logger.debug("init")
     loadResources()
 
     if (levelLoaded) {
-      activeGameObject = Some(gameObjects(0))
+      activeEntity = Some(entities(0))
     } else {
 
-      objs += new Paddle(width, height, 1)
-      objs += new Background(width, height, -10)
-
-      objs.foreach(addGameObjectToScene)
-      activeGameObject = Some(objs(0))
+      game.entities.foreach(addEntityToScene)
     }
   }
 
@@ -42,7 +34,7 @@ class BreakoutScene extends Scene {
     // val tex = AssetPool.getTexture("assets/images/blendImage2.png")
     // tex.debugTexture(0f, 0f, 1000f, 1000f)
 
-    gameObjects.foreach(_.update(dt))
+    entities.foreach(_.update(dt))
     renderer.render()
   }
 

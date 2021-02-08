@@ -11,7 +11,7 @@ case class RigidBody(colliderType: Int, velocity: Vector3f, friction: Float) ext
   override def start(): Unit = {}
 
   override def update(dt: Float): Unit = {
-    _gameObject.map(_.posOffset(velocity.x * dt, velocity.y * dt))
+    _entity.map(_.posOffset(velocity.x * dt, velocity.y * dt))
     ()
   }
 

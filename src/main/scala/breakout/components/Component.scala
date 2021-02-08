@@ -8,11 +8,11 @@ trait Component {
 
   protected val typeName: String
 
-  protected var _gameObject: Option[Entity] = None
+  protected var _entity: Option[Entity] = None
 
-  def gameObject = _gameObject
+  def entity = _entity
 
-  def gameObject_=(obj: Entity) = _gameObject = Some(obj)
+  def entity_=(obj: Entity) = _entity = Some(obj)
 
   def start(): Unit
 
