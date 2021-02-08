@@ -7,7 +7,6 @@ case class Camera(position: Vector2f, width: Float, height: Float) {
   def projectionMatrix: Matrix4f = {
     val projectionMatrix = new Matrix4f
     projectionMatrix.identity
-    // projectionMatrix.ortho(0.0f, 32.0f * 40.0f, 0.0f, 32.0f * 21.0f, 0.0f, 100.0f)
     projectionMatrix.ortho(0.0f, width, 0.0f, height, 0.0f, 100.0f)
   }
 

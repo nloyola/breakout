@@ -2,7 +2,7 @@ package breakout.gameobjects
 
 import breakout.Transform
 import breakout.components.{ Component, RigidBody, Sprite, SpriteRenderer }
-import org.joml.{ Vector2f, Vector3f, Vector4f }
+import org.joml.{ Vector2f, Vector3f }
 import play.api.libs.json._
 import breakout.{ KeyListener }
 import org.lwjgl.glfw.GLFW.{ GLFW_KEY_A, GLFW_KEY_D }
