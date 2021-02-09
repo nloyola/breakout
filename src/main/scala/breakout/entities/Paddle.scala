@@ -4,48 +4,25 @@ import breakout.Transform
 import breakout.components.{ RigidBody, Sprite, SpriteRenderer }
 import org.joml.{ Vector2f, Vector3f }
 import play.api.libs.json._
-import breakout.{ KeyListener }
-import org.lwjgl.glfw.GLFW.{ GLFW_KEY_A, GLFW_KEY_D }
 
 import breakout.util.AssetPool
 
-case class Paddle(gameWidth: Float, gameHeight: Float, protected val _zIndex: Int) extends Entity {
+case class Paddle(private val _width: Float, private val _height: Float, protected val _zIndex: Int)
+    extends Entity {
 
   val name = "Paddle"
 
   private lazy val texture = AssetPool.texture("assets/images/paddle.png")
 
-  protected lazy val _transform =
-    Transform(new Vector2f(0, gameHeight - 10 - texture.height / 4f),
-              new Vector2f(texture.width / 4f, texture.height / 4f)
-    )
+  override protected val _transform: Transform = Transform(new Vector2f(), new Vector2f(_width, _height))
 
-  val rigidBody = RigidBody(1, new Vector3f(0, 0, 0), 0f)
+  val rigidBody = RigidBody(1, new Vector3f(), 0f)
 
-  private val paddleAbsSpeed = 500f
+  def velocityX = rigidBody.velocity.x
 
-  private val moveRangeX = new Vector2f(0, gameWidth - _transform.scale.x)
+  def velocityX_=(v: Float) = rigidBody.velocity.x = v
 
-  override def update(dt: Float): Unit = {
-    val velocity =
-      if (KeyListener.isKeyPressed(GLFW_KEY_D)) {
-        paddleAbsSpeed
-      } else if (KeyListener.isKeyPressed(GLFW_KEY_A)) {
-        -paddleAbsSpeed
-      } else {
-        0
-      }
-
-    rigidBody.velocity.x = velocity
-
-    _components.foreach(_.update(dt))
-
-    // keep the paddle within the left and right limits
-    _transform.position.x = Math.max(Math.min(_transform.position.x, moveRangeX.y), moveRangeX.x)
-
-    ()
-  }
-
+  scale(width, height)
   addComponent(SpriteRenderer(sprite = Sprite(texture)))
   addComponent(rigidBody)
 }

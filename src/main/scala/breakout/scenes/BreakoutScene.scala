@@ -34,6 +34,8 @@ class BreakoutScene extends Scene {
     // val tex = AssetPool.getTexture("assets/images/blendImage2.png")
     // tex.debugTexture(0f, 0f, 1000f, 1000f)
 
+    game.update(dt)
+
     entities.foreach(_.update(dt))
     renderer.render()
   }

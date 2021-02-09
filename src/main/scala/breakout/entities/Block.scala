@@ -9,17 +9,17 @@ import breakout.util.AssetPool
 
 trait Block extends Entity {
 
-  protected lazy val _transform = Transform(new Vector2f(0, 0), new Vector2f(0f, 0f))
+  protected lazy val _transform = Transform(new Vector2f(), new Vector2f())
 
-  protected val rigidBody = RigidBody(1, new Vector3f(0, 0, 0), 0f)
+  protected val rigidBody = RigidBody(1, new Vector3f(), 0f)
 
 }
 
 case class BlockSolid(protected val _zIndex: Int) extends Block() {
 
-  val name = "BlockSolid"
+  override val name = "BlockSolid"
 
-  val spriteRenderer = SpriteRenderer(sprite = BlockSolid.sprite)
+  private val spriteRenderer = SpriteRenderer(sprite = BlockSolid.sprite)
 
   addComponent(spriteRenderer)
   addComponent(rigidBody)
@@ -37,7 +37,8 @@ case class BlockBreakable(protected val color: Vector4f, protected val _zIndex: 
 
   val name = "BlockBreakable"
 
-  val renderer = SpriteRenderer(sprite = BlockBreakable.sprite)
+  private val renderer = SpriteRenderer(sprite = BlockBreakable.sprite)
+
   renderer.setColor(color)
 
   addComponent(renderer)

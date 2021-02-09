@@ -1,7 +1,12 @@
 package breakout.games
 
-import breakout.entities.{ Background, Entity, Paddle }
+import breakout.components.PositionConstraints
+import breakout.entities.{ Background, Ball, Entity, Paddle }
 import scala.collection.mutable.ArrayBuffer
+import breakout.{ KeyListener }
+import org.lwjgl.glfw.GLFW.{ GLFW_KEY_A, GLFW_KEY_D }
+import org.joml.Vector2f
+//import org.slf4j.LoggerFactory
 
 trait GameState
 
@@ -13,7 +18,11 @@ case class GameWin() extends GameState
 
 class BreakoutGame(width: Float, height: Float) {
 
-  // private var state = GameMenu()
+  // private val logger = LoggerFactory.getLogger(this.getClass)
+
+  private val paddleAbsVelocity = 500f
+
+  private val ballInitialVelocity = new Vector2f(100f, -350f)
 
   private val _entities = ArrayBuffer.empty[Entity]
 
@@ -21,20 +30,70 @@ class BreakoutGame(width: Float, height: Float) {
 
   //private var level = 0
 
+  // private var state = GameMenu()
+
+  private val paddleWidth = width / 8f
+
+  private val paddleHeight = height / 15f
+
+  private val paddle: Paddle = Paddle(paddleWidth, paddleHeight, 1)
+
+  // FIXME: change zIndex back to 1 after colliction detection is done
+  private val ball = Ball(width / 50f, 2)
+
   def entities = _entities
 
-  def update(dt: Float): Unit = {}
+  def update(dt: Float): Unit = {
+    val velocity =
+      if (KeyListener.isKeyPressed(GLFW_KEY_D)) {
+        paddleAbsVelocity
+      } else if (KeyListener.isKeyPressed(GLFW_KEY_A)) {
+        -paddleAbsVelocity
+      } else {
+        0
+      }
+
+    paddle.velocityX = velocity
+    updateBall()
+  }
 
   private def init(): Unit = {
+    val background = Background(width, height, -10)
+
+    paddle.posOffset(0, height - paddleHeight)
+    paddle.addComponent(PositionConstraints(0, width, 0, height))
+
+    ball.posOffset(paddle.width / 2, height - paddle.height - ball.height)
+    //ball.addComponent(PositionConstraints(0, width, 0, height))
+    ball.velocity = ballInitialVelocity
+
+    background.scale(width, height)
 
     val levelOne = new GameLevel()
     levelOne.load(GameLevel.levelOne, width, height / 2f)
 
     levels += levelOne
 
-    _entities += Paddle(width, height, 1)
-    _entities += Background(width, height, -10)
+    _entities += background
+    _entities += paddle
+    _entities += ball
     _entities ++= levelOne.blocks
+  }
+
+  private def updateBall(): Unit = {
+    val xPos        = ball.transform.position.x
+    val rightMargin = width - ball.radius
+
+    if ((xPos > rightMargin) || (xPos < 0)) {
+      ball.velocity = new Vector2f(-ball.velocity.x, ball.velocity.y)
+    }
+
+    val yPos = ball.transform.position.y
+    //val bottomMargin = height - ball.radius
+
+    if (yPos < 0) {
+      ball.velocity = new Vector2f(ball.velocity.x, -ball.velocity.y)
+    }
   }
 
   init()

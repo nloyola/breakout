@@ -123,11 +123,6 @@ object Window {
   }
 
   private def loop(): Unit = {
-    val r = 1f
-    val b = 1f
-    val g = 1f
-    val a = 1f
-
     var beginTime = glfwGetTime.toFloat
     var endTime   = 0.0f
     var dt        = -1.0f
@@ -139,8 +134,8 @@ object Window {
       // invoked during this call.
       glfwPollEvents
 
-      glClearColor(r, g, b, a)
-      //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT) // clear the framebuffer
+      // glClearColor(1f, 1f, 1f, 1f)
+      // glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT) // clear the framebuffer
       glClear(GL_COLOR_BUFFER_BIT)
 
       if (dt >= 0) {
