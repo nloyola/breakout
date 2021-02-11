@@ -10,7 +10,9 @@ case class Ball(private val _radius: Float, protected val _zIndex: Int) extends 
 
   override val name: String = "Ball"
 
-  override protected val _transform: Transform = Transform(new Vector2f(), new Vector2f(_radius, _radius))
+  private val diameter = 2f * _radius
+
+  override protected val _transform: Transform = Transform(new Vector2f(), new Vector2f(diameter, diameter))
 
   private val sprite = Sprite(AssetPool.texture("assets/images/ball.png"))
 

@@ -52,6 +52,10 @@ trait Entity {
 
   def height = _transform.scale.y
 
+  def position = _transform.position
+
+  def scale = _transform.scale
+
   def posOffset(x: Float, y: Float): Unit = {
     _transform.posOffset(x, y)
     ()

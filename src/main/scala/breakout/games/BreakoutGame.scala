@@ -1,11 +1,12 @@
 package breakout.games
 
 import breakout.components.PositionConstraints
-import breakout.entities.{ Background, Ball, Entity, Paddle }
-import scala.collection.mutable.ArrayBuffer
-import breakout.{ KeyListener }
-import org.lwjgl.glfw.GLFW.{ GLFW_KEY_A, GLFW_KEY_D }
+import breakout.entities.{ Background, Ball, BlockBreakable, Entity, Paddle }
+import breakout.{ Collision, CollisionDetection, KeyListener }
 import org.joml.Vector2f
+import org.lwjgl.glfw.GLFW.{ GLFW_KEY_A, GLFW_KEY_D }
+
+import scala.collection.mutable.ArrayBuffer
 //import org.slf4j.LoggerFactory
 
 trait GameState
@@ -28,7 +29,7 @@ class BreakoutGame(width: Float, height: Float) {
 
   private val levels = ArrayBuffer.empty[GameLevel]
 
-  //private var level = 0
+  private val level = 0
 
   // private var state = GameMenu()
 
@@ -39,7 +40,7 @@ class BreakoutGame(width: Float, height: Float) {
   private val paddle: Paddle = Paddle(paddleWidth, paddleHeight, 1)
 
   // FIXME: change zIndex back to 1 after colliction detection is done
-  private val ball = Ball(width / 50f, 2)
+  private val ball = Ball(width / 100f, 2)
 
   def entities = _entities
 
@@ -55,6 +56,7 @@ class BreakoutGame(width: Float, height: Float) {
 
     paddle.velocityX = velocity
     updateBall()
+    doCollisions()
   }
 
   private def init(): Unit = {
@@ -93,6 +95,19 @@ class BreakoutGame(width: Float, height: Float) {
 
     if (yPos < 0) {
       ball.velocity = new Vector2f(ball.velocity.x, -ball.velocity.y)
+    }
+  }
+
+  private def doCollisions(): Unit = {
+    levels(level).blocks.foreach { block =>
+      CollisionDetection.checkCollision(ball, block) match {
+        case Collision(direction, amount) =>
+          block match {
+            case b: BlockBreakable => b.destroyed = true
+            case _ => //do nothing
+          }
+        case _                            => // do nothing
+      }
     }
   }
 

@@ -39,6 +39,12 @@ case class BlockBreakable(protected val color: Vector4f, protected val _zIndex: 
 
   private val renderer = SpriteRenderer(sprite = BlockBreakable.sprite)
 
+  private var _destroyed = false
+
+  def destroyed = _destroyed
+
+  def destroyed_=(d: Boolean) = _destroyed = d
+
   renderer.setColor(color)
 
   addComponent(renderer)
