@@ -70,17 +70,17 @@ object CollisionDetection {
     val aabbHalfExtents = new Vector2f(entity.scale.x / 2f, entity.scale.y / 2f)
     val aabbCenter      = new Vector2f(entity.position).add(aabbHalfExtents)
     val difference      = new Vector2f(center).sub(aabbCenter)
-    val clamped         = new Vector2f(org.joml.Math.clamp(difference.x, -aabbHalfExtents.x, aabbHalfExtents.x),
-                               org.joml.Math.clamp(difference.y, -aabbHalfExtents.y, aabbHalfExtents.y)
+    val clamped         = new Vector2f(org.joml.Math.clamp(-aabbHalfExtents.x, aabbHalfExtents.x, difference.x),
+                               org.joml.Math.clamp(-aabbHalfExtents.y, aabbHalfExtents.y, difference.y)
     )
     val closest         = new Vector2f(aabbCenter).add(clamped)
-    val d2 = new Vector2f(closest).sub(center)
-    val result          = if (d2.length() <= ball.radius) {
+    val d2              = new Vector2f(closest).sub(center)
+
+    if (d2.length() <= ball.radius) {
+      logger.trace(s"checkCollision: ${vectorDirection(d2)}, diff: $d2")
       Collision(vectorDirection(d2), d2)
     } else {
       NoCollision()
     }
-    logger.info(s"checkCollision: $result, diff: $difference")
-    result
   }
 }
