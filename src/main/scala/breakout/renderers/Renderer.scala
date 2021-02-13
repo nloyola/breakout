@@ -15,6 +15,14 @@ class Renderer {
     entity.component[SpriteRenderer]().foreach(add)
   }
 
+  def render(): Unit = batches.foreach(_.render())
+
+  def destroyEntity(entity: Entity): Unit = {
+    entity.component[SpriteRenderer]().foreach { sr =>
+      batches.foreach { _.destroyEntity(entity) }
+    }
+  }
+
   private def add(sprite: SpriteRenderer): Unit = {
     val found = for {
       entity  <- sprite.entity
@@ -36,6 +44,4 @@ class Renderer {
         batches = batches.sorted
     }
   }
-
-  def render(): Unit = batches.foreach(_.render())
 }

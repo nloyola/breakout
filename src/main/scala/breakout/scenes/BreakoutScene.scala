@@ -16,18 +16,14 @@ class BreakoutScene extends Scene {
 
   protected val _camera = new Camera(new Vector2f(0f, 0f), width, height)
 
-  private val game = new BreakoutGame(width, height)
+  private lazy val game = new BreakoutGame(this, width, height)
 
   def init(): Unit = {
     logger.debug("init")
     loadResources()
-
-    if (levelLoaded) {
-      activeEntity = Some(entities(0))
-    } else {
-
-      game.entities.foreach(addEntityToScene)
-    }
+    game.init()
+    logger.info(s"init: entities: ${entities.size}")
+    activeEntity = Some(entities(0))
   }
 
   def update(dt: Float): Unit = {
@@ -35,8 +31,7 @@ class BreakoutScene extends Scene {
     // tex.debugTexture(0f, 0f, 1000f, 1000f)
 
     game.update(dt)
-
-    entities.foreach(_.update(dt))
+    _entities.foreach(_.update(dt))
     renderer.render()
   }
 

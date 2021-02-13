@@ -18,27 +18,37 @@ trait Scene {
   protected val renderer = new Renderer
   protected val _camera: Camera
   protected var isRunning = false
-  protected val entities  = ArrayBuffer.empty[Entity]
+  protected val _entities = ArrayBuffer.empty[Entity]
   protected var activeEntity: Option[Entity] = None
   protected var levelLoaded = false
+
+  def entities = _entities
 
   def init(): Unit
 
   def update(deltaTime: Float): Unit
 
   def start(): Unit = {
-    entities.foreach { entity =>
+    _entities.foreach { entity =>
       entity.start()
       renderer.add(entity)
     }
     isRunning = true
   }
 
-  def addEntityToScene(obj: Entity): Unit = {
-    entities += obj
+  def addEntityToScene(entity: Entity): Unit = {
+    logger.debug(s"adding entity $entity")
+    entities += entity
     if (isRunning) {
-      obj.start()
-      renderer.add(obj)
+      entity.start()
+      renderer.add(entity)
+    }
+  }
+
+  def removeEntity(entity: Entity): Unit = {
+    _entities -= entity
+    if (isRunning) {
+      renderer.destroyEntity(entity)
     }
   }
 
@@ -49,7 +59,7 @@ trait Scene {
     new File(filename).delete()
     val pw       = new PrintWriter(new File(filename))
 
-    pw.write(Json.prettyPrint(Json.toJson(entities)))
+    pw.write(Json.prettyPrint(Json.toJson(_entities)))
     pw.close
   }
 
@@ -64,7 +74,7 @@ trait Scene {
         Json.parse(contents).validate[ArrayBuffer[Entity]] match {
           case e:    JsError                        => logger.error(s"could not read level data: $e")
           case objs: JsSuccess[ArrayBuffer[Entity]] =>
-            entities.clear()
+            _entities.clear()
             objs.value.foreach { obj =>
               addEntityToScene(obj)
               obj.components.foreach(_.entity = obj)

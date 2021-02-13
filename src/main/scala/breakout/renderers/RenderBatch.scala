@@ -12,8 +12,12 @@ import org.lwjgl.opengl.{ GL15, GL20C }
 import org.slf4j.LoggerFactory
 
 import scala.collection.mutable.ArrayBuffer
+import breakout.entities.Entity
 
 class RenderBatch(private val maxBatchSize: Int, private val zIndex: Int) extends Ordered[RenderBatch] {
+
+  private val logger = LoggerFactory.getLogger(this.getClass)
+
   // Vertex
   // ======
   // Pos               Color                         tex coords     tex id
@@ -33,19 +37,17 @@ class RenderBatch(private val maxBatchSize: Int, private val zIndex: Int) extend
   private val VERTEX_SIZE_BYTES = VERTEX_SIZE * FLOAT_BYTES
 
   private val shader   = AssetPool.shader("assets/shaders/default.glsl")
-  private val sprites  = new Array[SpriteRenderer](maxBatchSize)
+  private val sprites  = new ArrayBuffer[SpriteRenderer](maxBatchSize)
   private val vertices = new Array[Float](maxBatchSize * 4 * VERTEX_SIZE)
   private val texSlots = Array[Int](0, 1, 2, 3, 4, 5, 6, 7)
 
-  private val logger = LoggerFactory.getLogger(this.getClass)
-
-  val textures   = ArrayBuffer.empty[Texture]
-  var vaoID      = 0
-  var vboID      = 0
-  var numSprites = 0
-  var _hasRoom   = true
+  val textures = ArrayBuffer.empty[Texture]
+  var vaoID    = 0
+  var vboID    = 0
+  var _hasRoom = true
 
   def start(): Unit = {
+    logger.debug(s"start")
     vaoID = glGenVertexArrays
     glBindVertexArray(vaoID)
 
@@ -78,9 +80,7 @@ class RenderBatch(private val maxBatchSize: Int, private val zIndex: Int) extend
     logger.debug(s"addSprite: spr: $spr")
 
     // Get index and add renderObject
-    val index = numSprites
-    sprites(index) = spr
-    numSprites = numSprites + 1
+    sprites += spr
 
     spr.texture.foreach { t =>
       if (!textures.contains(t)) {
@@ -90,19 +90,33 @@ class RenderBatch(private val maxBatchSize: Int, private val zIndex: Int) extend
     }
 
     // Add properties to local vertices array
-    loadVertexProperties(index)
+    loadVertexProperties(spr)
 
-    _hasRoom = !(numSprites >= maxBatchSize)
+    _hasRoom = sprites.size < maxBatchSize
+  }
+
+  def destroyEntity(entity: Entity): Unit = {
+    entity.component[SpriteRenderer]().foreach { sr =>
+      if (sprites.contains(sr)) {
+
+        val index = sprites.indexOf(sr)
+        sprites.slice(index + 1, sprites.length).foreach(_.setDirty())
+        sprites -= sr
+        logger.debug(
+          s"destroyEntity: $entity, position: ${entity.position.x},  ${entity.position.y}, index: $index"
+        )
+      }
+    }
+    ()
   }
 
   def render(): Unit = {
     var rebufferData = false
 
     //logger.debug(s"render: numSprites: $numSprites")
-    (0 until numSprites).foreach { index =>
-      val sprite = sprites(index)
+    sprites.foreach { sprite =>
       if (sprite.isDirty) {
-        loadVertexProperties(index)
+        loadVertexProperties(sprite)
         sprite.setClean()
         rebufferData = true
       }
@@ -110,7 +124,7 @@ class RenderBatch(private val maxBatchSize: Int, private val zIndex: Int) extend
 
     if (rebufferData) {
       glBindBuffer(GL_ARRAY_BUFFER, vboID)
-      logger.debug(s"vertices: " + vertices.take(40).map(_.toString).mkString(", "))
+      logger.trace(s"vertices: " + vertices.take(40).map(_.toString).mkString(", "))
       glBufferSubData(GL_ARRAY_BUFFER, 0, vertices)
     }
 
@@ -119,7 +133,7 @@ class RenderBatch(private val maxBatchSize: Int, private val zIndex: Int) extend
     shader.uploadMat4f("uView", Window.scene.camera.getViewMatrix())
 
     textures.zipWithIndex.foreach { case (t, i) =>
-      logger.debug(s"render: index: $i, texture: $t")
+      logger.trace(s"render: index: $i, texture: $t")
       glActiveTexture(GL_TEXTURE0 + i + 1)
       t.bind()
     }
@@ -129,7 +143,8 @@ class RenderBatch(private val maxBatchSize: Int, private val zIndex: Int) extend
     glEnableVertexAttribArray(0)
     glEnableVertexAttribArray(1)
 
-    glDrawElements(GL_TRIANGLES, numSprites * 6, GL_UNSIGNED_INT, 0)
+    logger.trace(s"rendering ${sprites.size} sprites")
+    glDrawElements(GL_TRIANGLES, sprites.size * 6, GL_UNSIGNED_INT, 0)
 
     glDisableVertexAttribArray(0)
     glDisableVertexAttribArray(1)
@@ -173,8 +188,8 @@ class RenderBatch(private val maxBatchSize: Int, private val zIndex: Int) extend
     elements
   }
 
-  private def loadVertexProperties(index: Int): Unit = {
-    val sprite = sprites(index)
+  private def loadVertexProperties(sprite: SpriteRenderer): Unit = {
+    val index = sprites.indexOf(sprite)
 
     // Find offset within array (4 vertices per sprite)
     var offset = index * 4 * VERTEX_SIZE
@@ -188,7 +203,9 @@ class RenderBatch(private val maxBatchSize: Int, private val zIndex: Int) extend
     }
 
     sprite.entity.foreach { entity =>
-      logger.trace(s"entity: ${entity.name}, index: $index")
+      logger.trace(
+        s"entity name: ${entity.name}, entity pos: (${entity.position.x}, ${entity.position.y}), index: $index"
+      )
       val transform = entity.transform
 
       // Add vertices with the appropriate properties

@@ -8,7 +8,8 @@ import play.api.libs.json._
 
 case class SpriteRenderer(sprite: Sprite, color: Vector4f) extends Component {
 
-  protected val log      = LoggerFactory.getLogger(this.getClass)
+  protected val log = LoggerFactory.getLogger(this.getClass)
+
   protected val typeName = "spriteRenderer"
 
   private var lastTransform: Option[Transform] = None
@@ -46,6 +47,17 @@ case class SpriteRenderer(sprite: Sprite, color: Vector4f) extends Component {
   def isDirty: Boolean = _isDirty
 
   def setClean(): Unit = _isDirty = false
+
+  def setDirty(): Unit = _isDirty = true
+
+  override def equals(that: Any): Boolean = {
+    that match {
+      case sr: SpriteRenderer => entity == sr.entity
+      case _ => false
+    }
+  }
+
+  override def hashCode: Int = 41 * entity.hashCode + sprite.hashCode
 
   override def toString: String = s"entity: $entity, isDirty: ${_isDirty})"
 

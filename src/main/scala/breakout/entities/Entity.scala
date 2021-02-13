@@ -6,6 +6,7 @@ import play.api.libs.json._
 import scala.collection.mutable.ArrayBuffer
 import scala.reflect.ClassTag
 import breakout.Transform
+import org.joml.Vector2f
 
 trait Entity {
 
@@ -54,6 +55,8 @@ trait Entity {
 
   def position = _transform.position
 
+  def position_=(pos: Vector2f) = _transform.position.set(pos)
+
   def scale = _transform.scale
 
   def posOffset(x: Float, y: Float): Unit = {
@@ -65,6 +68,15 @@ trait Entity {
     _transform.setScale(x, y)
     ()
   }
+
+  override def equals(that: Any): Boolean = {
+    that match {
+      case e: Entity => (name == e.name) && (_transform == e._transform)
+      case _ => false
+    }
+  }
+
+  override def hashCode: Int = 41 * name.hashCode + _transform.position.hashCode
 
   override def toString: String = s"name: $name, components: ${_components.length}, zIndex: $zIndex"
 

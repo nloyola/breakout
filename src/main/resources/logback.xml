@@ -19,6 +19,7 @@
   </appender>
 
   <logger name="breakout" level="INFO" />
+  <logger name="breakout.renderers.RenderBatch" level="DEBUG" />
 
   <root level="INFO">
     <appender-ref ref="STDOUT" />
