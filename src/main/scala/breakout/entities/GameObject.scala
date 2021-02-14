@@ -1,8 +1,7 @@
 package breakout.entities
 
-import play.api.libs.json._
-
 import breakout.Transform
+import play.api.libs.json._
 
 case class GameObject(name: String, _transform: Transform, _zIndex: Int) extends Entity {}
 

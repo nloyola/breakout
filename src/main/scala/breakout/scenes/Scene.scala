@@ -1,8 +1,8 @@
 package breakout.scenes
 
-import breakout.renderers.Renderer
 import breakout.Camera
 import breakout.entities.Entity
+import breakout.renderers.Renderer
 import org.slf4j.LoggerFactory
 import play.api.libs.json._
 
@@ -77,7 +77,6 @@ trait Scene {
             _entities.clear()
             objs.value.foreach { obj =>
               addEntityToScene(obj)
-              obj.components.foreach(_.entity = obj)
             }
             levelLoaded = true
         }

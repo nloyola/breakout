@@ -1,11 +1,10 @@
 package breakout.games
 
-import scala.collection.mutable.ArrayBuffer
-import breakout.entities.Block
-import breakout.entities.BlockSolid
-import breakout.entities.BlockBreakable
+import breakout.entities.{ Block, BlockBreakable, BlockSolid }
 import org.joml.Vector4f
 import org.slf4j.LoggerFactory
+
+import scala.collection.mutable.ArrayBuffer
 
 class GameLevel {
 

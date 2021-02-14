@@ -2,6 +2,7 @@ package breakout.renderers
 
 import breakout.Window
 import breakout.components.SpriteRenderer
+import breakout.entities.Entity
 import breakout.util.AssetPool
 import org.lwjgl.opengl.GL11._
 import org.lwjgl.opengl.GL13._
@@ -12,7 +13,6 @@ import org.lwjgl.opengl.{ GL15, GL20C }
 import org.slf4j.LoggerFactory
 
 import scala.collection.mutable.ArrayBuffer
-import breakout.entities.Entity
 
 class RenderBatch(private val maxBatchSize: Int, private val zIndex: Int) extends Ordered[RenderBatch] {
 
@@ -41,10 +41,20 @@ class RenderBatch(private val maxBatchSize: Int, private val zIndex: Int) extend
   private val vertices = new Array[Float](maxBatchSize * 4 * VERTEX_SIZE)
   private val texSlots = Array[Int](0, 1, 2, 3, 4, 5, 6, 7)
 
-  val textures = ArrayBuffer.empty[Texture]
-  var vaoID    = 0
-  var vboID    = 0
-  var _hasRoom = true
+  private val textures = ArrayBuffer.empty[Texture]
+  private var vaoID    = 0
+  private var vboID    = 0
+  private var _hasRoom = true
+
+  def hasRoom(): Boolean = _hasRoom
+
+  def hasTextureRoom(): Boolean = textures.size < 8
+
+  def hasTexture(tex: Texture): Boolean = textures.contains(tex)
+
+  def getZIndex(): Int = zIndex
+
+  def compare(that: RenderBatch) = this.zIndex - that.zIndex
 
   def start(): Unit = {
     logger.trace(s"start")
@@ -156,16 +166,6 @@ class RenderBatch(private val maxBatchSize: Int, private val zIndex: Int) extend
     //logger.debug("render: done")
   }
 
-  def hasRoom(): Boolean = _hasRoom
-
-  def hasTextureRoom(): Boolean = textures.size < 8
-
-  def hasTexture(tex: Texture): Boolean = textures.contains(tex)
-
-  def getZIndex(): Int = zIndex
-
-  def compare(that: RenderBatch) = this.zIndex - that.zIndex
-
   private def generateIndices(): Array[Int] = {
     // 6 indices per quad (3 per triangle)
     val elements = new Array[Int](6 * maxBatchSize)
@@ -202,36 +202,45 @@ class RenderBatch(private val maxBatchSize: Int, private val zIndex: Int) extend
       texId = textures.indexOf(tex) + 1
     }
 
-    sprite.entity.foreach { entity =>
-      logger.trace(
-        s"entity name: ${entity.name}, entity pos: (${entity.position.x}, ${entity.position.y}), index: $index"
-      )
-      val transform = entity.transform
+    val entity    = sprite.entity
+    val transform = entity.transform
 
-      // Add vertices with the appropriate properties
-      Array((0, 1f, 1f), (1, 1f, 0f), (2, 0f, 0f), (3, 0f, 1f)).foreach { case (v, xAdd, yAdd) =>
-        // Load position
-        vertices(offset) = transform.position.x + (xAdd * transform.scale.x)
-        vertices(offset + 1) = transform.position.y + (yAdd * transform.scale.y)
+    // entity match {
+    //   case e: BallParticle =>
+    //     logger.info(
+    //       s"ball particle: position: ${entity.position.x}, ${entity.position.y}, scale: ${entity.scale.x}, ${entity.scale.y}"
+    //     )
+    //   case _ =>
+    // }
 
-        logger.trace(s"${entity.name}, $index, $v, ${vertices(offset)}, ${vertices(offset + 1)}")
+    logger.trace(
+      s"entity name: ${entity.name}, entity pos: (${entity.position.x}, ${entity.position.y}), index: $index"
+    )
 
-        // Load color
-        vertices(offset + 2) = color.x
-        vertices(offset + 3) = color.y
-        vertices(offset + 4) = color.z
-        vertices(offset + 5) = color.w
+    // Add vertices with the appropriate properties
+    Array((0, 1f, 1f), (1, 1f, 0f), (2, 0f, 0f), (3, 0f, 1f)).foreach { case (v, xAdd, yAdd) =>
+      // Load position
+      vertices(offset) = transform.position.x + (xAdd * transform.scale.x)
+      vertices(offset + 1) = transform.position.y + (yAdd * transform.scale.y)
 
-        // Load texture coordinates
-        vertices(offset + 6) = texCoords(v).x
-        vertices(offset + 7) = texCoords(v).y
+      logger.trace(s"${entity.name}, $index, $v, ${vertices(offset)}, ${vertices(offset + 1)}")
 
-        // Load texture id
-        vertices(offset + 8) = texId.toFloat
+      // Load color
+      vertices(offset + 2) = color.x
+      vertices(offset + 3) = color.y
+      vertices(offset + 4) = color.z
+      vertices(offset + 5) = color.w
 
-        offset += VERTEX_SIZE
-      }
+      // Load texture coordinates
+      vertices(offset + 6) = texCoords(v).x
+      vertices(offset + 7) = texCoords(v).y
+
+      // Load texture id
+      vertices(offset + 8) = texId.toFloat
+
+      offset += VERTEX_SIZE
     }
+
     ()
   }
 

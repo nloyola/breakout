@@ -2,9 +2,8 @@ package breakout.entities
 
 import breakout.Transform
 import breakout.components.{ RigidBody, Sprite, SpriteRenderer }
-import org.joml.{ Vector2f, Vector3f }
-
 import breakout.util.AssetPool
+import org.joml.{ Vector2f, Vector3f }
 
 case class Ball(private val _radius: Float, protected val _zIndex: Int) extends Entity {
 
@@ -16,30 +15,23 @@ case class Ball(private val _radius: Float, protected val _zIndex: Int) extends 
 
   private val sprite = Sprite(AssetPool.texture("assets/images/ball.png"))
 
-  private val spriteRenderer = SpriteRenderer(sprite = sprite)
+  private val spriteRenderer = SpriteRenderer(this, sprite)
 
-  private val rigidBody = RigidBody(1, new Vector3f(), 0f)
+  private val rigidBody = RigidBody(this, 1, new Vector3f(), 0f)
 
   private var _stuck = true
 
-  def velocity = rigidBody.velocity
+  def velocity = rigidBody._velocity
 
-  def velocity_=(v: Vector2f) = {
-    rigidBody.velocity.x = v.x
-    rigidBody.velocity.y = v.y
-  }
+  def velocity_=(v: Vector2f) = rigidBody.velocity = v
 
-  def velocityX = rigidBody.velocity.x
+  def velocityX = rigidBody._velocity.x
 
-  def velocityX_=(v: Float) = {
-    rigidBody.velocity.x = v
-  }
+  def velocityX_=(v: Float) = rigidBody._velocity.x = v
 
-  def velocityY = rigidBody.velocity.y
+  def velocityY = rigidBody._velocity.y
 
-  def velocityY_=(v: Float) = {
-    rigidBody.velocity.y = v
-  }
+  def velocityY_=(v: Float) = rigidBody._velocity.y = v
 
   def stuck = _stuck
 
@@ -47,7 +39,7 @@ case class Ball(private val _radius: Float, protected val _zIndex: Int) extends 
 
   def radius = _radius
 
-  def radius_=(r: Float) = _transform.setScale(r/2f, r/2f)
+  def radius_=(r: Float) = _transform.setScale(r / 2f, r / 2f)
 
   addComponent(spriteRenderer)
   addComponent(rigidBody)

@@ -1,18 +1,48 @@
 package breakout.components
 
 import breakout._
-import org.joml.Vector3f
+import breakout.entities.Entity
+import org.joml.{ Vector2f, Vector3f }
 import play.api.libs.json._
+//import breakout.entities.BallParticle
 
-case class RigidBody(colliderType: Int, velocity: Vector3f, friction: Float) extends Component {
+case class RigidBody(entity: Entity, colliderType: Int, _velocity: Vector3f, friction: Float)
+    extends Component {
 
   protected val typeName = "rigidBody"
 
   override def start(): Unit = {}
 
   override def update(dt: Float): Unit = {
-    _entity.map(_.posOffset(velocity.x * dt, velocity.y * dt))
+    // entity match {
+    //   case p: BallParticle =>
+    //     if ((_velocity.x != 0f) || (_velocity.x != 0f) || (_velocity.x != 0f)) {
+    //       org.slf4j.LoggerFactory.getLogger(this.getClass).info(s"---------->  ${_velocity}")
+    //     }
+    //   case _ =>
+    // }
+
+    entity.posOffset(_velocity.x * dt, _velocity.y * dt)
     ()
+  }
+
+  def velocity = _velocity
+
+  def velocity_=(v: Vector2f) = {
+    _velocity.x = v.x
+    _velocity.y = v.y
+  }
+
+  def velocityX = _velocity.x
+
+  def velocityX_=(v: Float) = {
+    _velocity.x = v
+  }
+
+  def velocityY = _velocity.y
+
+  def velocityY_=(v: Float) = {
+    _velocity.y = v
   }
 
 }

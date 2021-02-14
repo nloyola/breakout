@@ -1,8 +1,7 @@
 package breakout.renderers
 
-import breakout.entities.Entity
 import breakout.components.SpriteRenderer
-//import org.slf4j.LoggerFactory
+import breakout.entities.Entity
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -25,11 +24,10 @@ class Renderer {
 
   private def add(sprite: SpriteRenderer): Unit = {
     val found = for {
-      entity  <- sprite.entity
       texture <- sprite.texture
       batch   <- batches.find { batch =>
-                   batch.hasRoom() && (batch.getZIndex() == entity.zIndex) && (batch.hasTextureRoom() || batch
-                     .hasTexture(texture))
+                   batch.hasRoom() && (batch.getZIndex() == sprite.entity.zIndex) &&
+                   (batch.hasTextureRoom() || batch.hasTexture(texture))
                  }
     } yield batch
 
@@ -37,7 +35,7 @@ class Renderer {
       case Some(batch) =>
         batch.addSprite(sprite)
       case None        =>
-        val newBatch = new RenderBatch(MAX_BATCH_SIZE, sprite.entity.map(_.zIndex).getOrElse(0))
+        val newBatch = new RenderBatch(MAX_BATCH_SIZE, sprite.entity.zIndex)
         newBatch.start()
         batches += newBatch
         newBatch.addSprite(sprite)

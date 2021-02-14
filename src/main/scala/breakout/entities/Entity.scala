@@ -1,12 +1,12 @@
 package breakout.entities
 
+import breakout.Transform
 import breakout.components.Component
+import org.joml.Vector2f
 import play.api.libs.json._
 
 import scala.collection.mutable.ArrayBuffer
 import scala.reflect.ClassTag
-import breakout.Transform
-import org.joml.Vector2f
 
 trait Entity {
 
@@ -33,7 +33,6 @@ trait Entity {
 
   def addComponent(c: Component): Unit = {
     _components += c
-    c.entity = this
     ()
   }
 

@@ -1,34 +1,35 @@
 package breakout.components
 
-case class PositionConstraints(left: Float, right: Float, top: Float, bottom: Float) extends Component {
+import breakout.entities.Entity
+
+case class PositionConstraints(entity: Entity, left: Float, right: Float, top: Float, bottom: Float)
+    extends Component {
 
   protected val typeName = "positionConstraints"
 
   override def start(): Unit = {}
 
   override def update(dt: Float): Unit = {
-    _entity.map { e =>
-      val xPos        = e.transform.position.x
-      val rightMargin = right - e.transform.scale.x
+    val xPos        = entity.transform.position.x
+    val rightMargin = right - entity.transform.scale.x
 
-      if (xPos > rightMargin) {
-        e.transform.position.x = rightMargin
-      }
+    if (xPos > rightMargin) {
+      entity.transform.position.x = rightMargin
+    }
 
-      if (xPos < left) {
-        e.transform.position.x = left
-      }
+    if (xPos < left) {
+      entity.transform.position.x = left
+    }
 
-      val yPos         = e.transform.position.y
-      val bottomMargin = bottom - e.transform.scale.y
+    val yPos         = entity.transform.position.y
+    val bottomMargin = bottom - entity.transform.scale.y
 
-      if (yPos > bottomMargin) {
-        e.transform.position.y = bottomMargin
-      }
+    if (yPos > bottomMargin) {
+      entity.transform.position.y = bottomMargin
+    }
 
-      if (yPos < top) {
-        e.transform.position.y = top
-      }
+    if (yPos < top) {
+      entity.transform.position.y = top
     }
     ()
   }

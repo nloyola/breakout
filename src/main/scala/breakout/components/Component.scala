@@ -6,13 +6,9 @@ import play.api.libs.json._
 
 trait Component {
 
+  val entity: Entity
+
   protected val typeName: String
-
-  protected var _entity: Option[Entity] = None
-
-  def entity = _entity
-
-  def entity_=(obj: Entity) = _entity = Some(obj)
 
   def start(): Unit
 

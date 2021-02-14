@@ -2,16 +2,15 @@ package breakout.entities
 
 import breakout.Transform
 import breakout.components.{ RigidBody, Sprite, SpriteRenderer }
+import breakout.util.AssetPool
 import org.joml.{ Vector2f, Vector3f, Vector4f }
 import play.api.libs.json._
-
-import breakout.util.AssetPool
 
 trait Block extends Entity {
 
   protected lazy val _transform = Transform(new Vector2f(), new Vector2f())
 
-  protected val rigidBody = RigidBody(1, new Vector3f(), 0f)
+  protected val rigidBody = RigidBody(this, 1, new Vector3f(), 0f)
 
 }
 
@@ -19,7 +18,7 @@ case class BlockSolid(protected val _zIndex: Int) extends Block() {
 
   override val name = "BlockSolid"
 
-  private val spriteRenderer = SpriteRenderer(sprite = BlockSolid.sprite)
+  private val spriteRenderer = SpriteRenderer(entity = this, sprite = BlockSolid.sprite)
 
   addComponent(spriteRenderer)
   addComponent(rigidBody)
@@ -37,7 +36,7 @@ case class BlockBreakable(protected val color: Vector4f, protected val _zIndex: 
 
   val name = "BlockBreakable"
 
-  private val renderer = SpriteRenderer(sprite = BlockBreakable.sprite)
+  private val renderer = SpriteRenderer(entity = this, sprite = BlockBreakable.sprite)
 
   private var _destroyed = false
 

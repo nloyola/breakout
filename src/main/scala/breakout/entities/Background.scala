@@ -2,10 +2,9 @@ package breakout.entities
 
 import breakout.Transform
 import breakout.components.{ Sprite, SpriteRenderer }
+import breakout.util.AssetPool
 import org.joml.Vector2f
 import play.api.libs.json._
-
-import breakout.util.AssetPool
 
 case class Background(private val _width: Float, private val _height: Float, protected val _zIndex: Int)
     extends Entity {
@@ -20,7 +19,7 @@ case class Background(private val _width: Float, private val _height: Float, pro
     throw new Error("background should not move")
   }
 
-  addComponent(SpriteRenderer(sprite = Sprite(tex)))
+  addComponent(SpriteRenderer(entity = this, sprite = Sprite(tex)))
 
 }
 

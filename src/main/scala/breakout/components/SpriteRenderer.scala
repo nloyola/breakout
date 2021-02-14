@@ -1,34 +1,29 @@
 package breakout.components
 
 import breakout._
+import breakout.entities.Entity
 import breakout.renderers.Texture
 import org.joml.{ Vector2f, Vector4f }
 import org.slf4j.LoggerFactory
 import play.api.libs.json._
 
-case class SpriteRenderer(sprite: Sprite, color: Vector4f) extends Component {
+case class SpriteRenderer(entity: Entity, sprite: Sprite, color: Vector4f) extends Component {
 
   protected val log = LoggerFactory.getLogger(this.getClass)
 
   protected val typeName = "spriteRenderer"
 
-  private var lastTransform: Option[Transform] = None
+  private var lastTransform: Transform = entity.transform.copy()
+
   private var _isDirty = true
 
-  override def start(): Unit = {
-    lastTransform = entity.map(_.transform.copy())
-  }
+  override def start(): Unit = {}
 
   override def update(dt: Float): Unit = {
-    for {
-      lt  <- lastTransform
-      obj <- entity
-    } yield {
-      if (!lt.equals(obj.transform)) {
-        log.trace(s"last transform: $lt, obj transform: ${obj.transform}")
-        lastTransform = Some(obj.transform.copy())
-        _isDirty = true
-      }
+    if (!lastTransform.equals(entity.transform)) {
+      log.trace(s"last transform: $lastTransform, obj transform: ${entity.transform}")
+      lastTransform = entity.transform.copy()
+      _isDirty = true
     }
     ()
   }
@@ -40,6 +35,13 @@ case class SpriteRenderer(sprite: Sprite, color: Vector4f) extends Component {
   def setColor(c: Vector4f): Unit = {
     if (!color.equals(c)) {
       color.set(c)
+      _isDirty = true
+    }
+  }
+
+  def setColor(r: Float, g: Float, b: Float, a: Float): Unit = {
+    if (!color.equals(r, g, b, a)) {
+      color.set(r, g, b, a)
       _isDirty = true
     }
   }
@@ -65,10 +67,10 @@ case class SpriteRenderer(sprite: Sprite, color: Vector4f) extends Component {
 
 object SpriteRenderer {
 
-  def apply(sprite: Sprite): SpriteRenderer =
-    SpriteRenderer(sprite = sprite, color = new Vector4f(1, 1, 1, 1))
+  def apply(entity: Entity, sprite: Sprite): SpriteRenderer =
+    SpriteRenderer(entity = entity, sprite = sprite, color = new Vector4f(1, 1, 1, 1))
 
-  def apply(color: Vector4f): SpriteRenderer = SpriteRenderer(Sprite(), color)
+  def apply(entity: Entity, color: Vector4f): SpriteRenderer = SpriteRenderer(entity, Sprite(), color)
 
   implicit val spriteRendererFormat: Format[SpriteRenderer] = Json.format[SpriteRenderer]
 

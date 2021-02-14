@@ -1,10 +1,11 @@
 package breakout.scenes
 
+import breakout.Camera
 import breakout.games.BreakoutGame
 import breakout.util.AssetPool
-import breakout.Camera
 import org.joml.{ Vector2f }
 import org.slf4j.LoggerFactory
+// import breakout.entities.BallParticle
 
 class BreakoutScene extends Scene {
 
@@ -32,6 +33,12 @@ class BreakoutScene extends Scene {
 
     game.update(dt)
     _entities.foreach(_.update(dt))
+
+    // val particles = _entities.collect { case b: BallParticle => b }
+    // if (particles.size > 0) {
+    //   logger.info(s"scene particles: " + particles.map(_.id).mkString(", "))
+    // }
+
     renderer.render()
   }
 

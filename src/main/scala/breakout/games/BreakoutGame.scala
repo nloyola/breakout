@@ -2,13 +2,13 @@ package breakout.games
 
 import breakout.components.PositionConstraints
 import breakout.entities.{ Background, Ball, Block, BlockBreakable, Paddle }
+import breakout.scenes.Scene
 import breakout.{ Collision, CollisionDetection, East, KeyListener, North, South, West }
-import org.joml.Vector2f
+import org.joml.{ Vector2f }
 import org.lwjgl.glfw.GLFW.{ GLFW_KEY_A, GLFW_KEY_D, GLFW_KEY_SPACE }
+import org.slf4j.LoggerFactory
 
 import scala.collection.mutable.ArrayBuffer
-import org.slf4j.LoggerFactory
-import breakout.scenes.Scene
 
 trait GameState
 
@@ -38,8 +38,9 @@ class BreakoutGame(scene: Scene, width: Float, height: Float) {
 
   private val paddle: Paddle = Paddle(paddleWidth, paddleHeight, 1)
 
-  // FIXME: change zIndex back to 1 after collision detection is done
-  private val ball = Ball(width / 100f, 2)
+  private val ball = Ball(width / 100f, 3)
+
+  private val particleGenerator = new ParticleGenerator(scene)
 
   def init(): Unit = {
     logger.debug("init")
@@ -47,7 +48,9 @@ class BreakoutGame(scene: Scene, width: Float, height: Float) {
     background.scale(width, height)
 
     paddle.posOffset(0, height - paddleHeight)
-    paddle.addComponent(PositionConstraints(0, width, 0, height))
+    paddle.addComponent(
+      PositionConstraints(entity = paddle, left = 0, right = width, top = 0, bottom = height)
+    )
 
     updateBall()
 
@@ -60,6 +63,8 @@ class BreakoutGame(scene: Scene, width: Float, height: Float) {
 
     levels += levelOne
     levelOne.blocks.foreach(scene.addEntityToScene)
+
+    particleGenerator.init(2)
 
     ()
   }
@@ -84,6 +89,7 @@ class BreakoutGame(scene: Scene, width: Float, height: Float) {
     paddle.velocityX = velocity
 
     updateBall()
+    particleGenerator.update(dt, ball, 2)
     doCollisions()
 
     val brokenBlocks = scene.entities.collect { case b: BlockBreakable => b }.filter(_.destroyed)
@@ -100,10 +106,13 @@ class BreakoutGame(scene: Scene, width: Float, height: Float) {
   }
 
   private def updateBall(): Unit = {
+    logger.trace(s"ball velocity: ${ball.velocity}")
+
     if (ball.stuck) {
       ball.position = new Vector2f(paddle.position.x + paddle.scale.x / 2f - ball.radius,
-                                   paddle.position.y - paddle.scale.y / 2f
+                                   paddle.position.y - paddle.scale.y / 2f - 3
       )
+      ball.velocity = new Vector2f()
     } else {
       val xPos        = ball.position.x
       val rightMargin = width - ball.radius
