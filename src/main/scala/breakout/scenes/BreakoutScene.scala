@@ -22,7 +22,7 @@ class BreakoutScene extends Scene {
     logger.debug("init")
     loadResources()
     game.init()
-    logger.info(s"init: entities: ${entities.size}")
+    logger.debug(s"init: entities: ${entities.size}")
     activeEntity = Some(entities(0))
   }
 

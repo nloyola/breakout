@@ -47,7 +47,7 @@ class RenderBatch(private val maxBatchSize: Int, private val zIndex: Int) extend
   var _hasRoom = true
 
   def start(): Unit = {
-    logger.debug(s"start")
+    logger.trace(s"start")
     vaoID = glGenVertexArrays
     glBindVertexArray(vaoID)
 
@@ -77,7 +77,7 @@ class RenderBatch(private val maxBatchSize: Int, private val zIndex: Int) extend
   }
 
   def addSprite(spr: SpriteRenderer): Unit = {
-    logger.debug(s"addSprite: spr: $spr")
+    logger.trace(s"addSprite: spr: $spr")
 
     // Get index and add renderObject
     sprites += spr
@@ -102,7 +102,7 @@ class RenderBatch(private val maxBatchSize: Int, private val zIndex: Int) extend
         val index = sprites.indexOf(sr)
         sprites.slice(index + 1, sprites.length).foreach(_.setDirty())
         sprites -= sr
-        logger.debug(
+        logger.trace(
           s"destroyEntity: $entity, position: ${entity.position.x},  ${entity.position.y}, index: $index"
         )
       }

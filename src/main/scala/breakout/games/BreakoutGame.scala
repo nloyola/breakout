@@ -4,7 +4,7 @@ import breakout.components.PositionConstraints
 import breakout.entities.{ Background, Ball, Block, BlockBreakable, Paddle }
 import breakout.{ Collision, CollisionDetection, East, KeyListener, North, South, West }
 import org.joml.Vector2f
-import org.lwjgl.glfw.GLFW.{ GLFW_KEY_A, GLFW_KEY_D }
+import org.lwjgl.glfw.GLFW.{ GLFW_KEY_A, GLFW_KEY_D, GLFW_KEY_SPACE }
 
 import scala.collection.mutable.ArrayBuffer
 import org.slf4j.LoggerFactory
@@ -42,15 +42,14 @@ class BreakoutGame(scene: Scene, width: Float, height: Float) {
   private val ball = Ball(width / 100f, 2)
 
   def init(): Unit = {
-    logger.info("init")
+    logger.debug("init")
     val background = Background(width, height, -10)
     background.scale(width, height)
 
     paddle.posOffset(0, height - paddleHeight)
     paddle.addComponent(PositionConstraints(0, width, 0, height))
 
-    ball.posOffset(paddle.width / 2, height - paddle.height - ball.height - 0.01f)
-    ball.velocity = ballInitialVelocity
+    updateBall()
 
     scene.addEntityToScene(background)
     scene.addEntityToScene(paddle)
@@ -75,6 +74,13 @@ class BreakoutGame(scene: Scene, width: Float, height: Float) {
         0
       }
 
+    if (KeyListener.isKeyPressed(GLFW_KEY_SPACE)) {
+      if (ball.stuck) {
+        ball.stuck = false
+        ball.velocity = ballInitialVelocity
+      }
+    }
+
     paddle.velocityX = velocity
 
     updateBall()
@@ -83,31 +89,37 @@ class BreakoutGame(scene: Scene, width: Float, height: Float) {
     val brokenBlocks = scene.entities.collect { case b: BlockBreakable => b }.filter(_.destroyed)
     brokenBlocks.foreach { block =>
       scene.removeEntity(block)
-      logger.info(s"bock removed: pos: ${block.position.x}, ${block.position.y}")
+      logger.debug(s"bock removed: pos: ${block.position.x}, ${block.position.y}")
     }
 
-    // did ball go past bottom
+    // did ball go past the bottom?
     if (ball.position.y >= height) {
-      logger.info("here")
       resetLevel()
       resetPlayer()
     }
   }
 
   private def updateBall(): Unit = {
-    val xPos        = ball.position.x
-    val rightMargin = width - ball.radius
+    if (ball.stuck) {
+      ball.position = new Vector2f(paddle.position.x + paddle.scale.x / 2f - ball.radius,
+                                   paddle.position.y - paddle.scale.y / 2f
+      )
+    } else {
+      val xPos        = ball.position.x
+      val rightMargin = width - ball.radius
 
-    if ((xPos > rightMargin) || (xPos < 0)) {
-      ball.velocity = new Vector2f(-ball.velocity.x, ball.velocity.y)
+      if ((xPos > rightMargin) || (xPos < 0)) {
+        ball.velocity = new Vector2f(-ball.velocity.x, ball.velocity.y)
+      }
+
+      val yPos = ball.position.y
+      //val bottomMargin = height - ball.radius
+
+      if (yPos < 0) {
+        ball.velocity = new Vector2f(ball.velocity.x, -ball.velocity.y)
+      }
     }
-
-    val yPos = ball.position.y
-    //val bottomMargin = height - ball.radius
-
-    if (yPos < 0) {
-      ball.velocity = new Vector2f(ball.velocity.x, -ball.velocity.y)
-    }
+    ()
   }
 
   private def doCollisions(): Unit = {
@@ -123,7 +135,7 @@ class BreakoutGame(scene: Scene, width: Float, height: Float) {
             block match {
               case b: BlockBreakable =>
                 b.destroyed = true
-                logger.info(s"broken block: pos: ${b.position.x}, ${b.position.y}")
+                logger.debug(s"broken block: pos: ${b.position.x}, ${b.position.y}")
               case _ =>
               //do nothing
             }
@@ -154,23 +166,25 @@ class BreakoutGame(scene: Scene, width: Float, height: Float) {
       }
     }
 
-    CollisionDetection.checkCollision(ball, paddle) match {
-      case Collision(direction, amount) =>
-        val centerPaddle = paddle.position.x + paddle.scale.x / 2f
-        val distance     = ball.position.x + ball.radius - centerPaddle
-        val percentage   = 2f * distance / paddle.scale.x
-        val strength     = 2f
-        val prevVelocity = new Vector2f(ball.velocity.x, ball.velocity.y)
-        val vX           = ballInitialVelocity.x * percentage * strength
-        val vY           = -1f * ball.velocity.y.abs
-        val newVel       = new Vector2f(vX, vY).normalize().mul(prevVelocity.length())
-        ball.velocityX = newVel.x
-        ball.velocityY = newVel.y
+    if (!ball.stuck) {
+      CollisionDetection.checkCollision(ball, paddle) match {
+        case Collision(direction, amount) =>
+          val centerPaddle = paddle.position.x + paddle.scale.x / 2f
+          val distance     = ball.position.x + ball.radius - centerPaddle
+          val percentage   = 2f * distance / paddle.scale.x
+          val strength     = 2f
+          val prevVelocity = new Vector2f(ball.velocity.x, ball.velocity.y)
+          val vX           = ballInitialVelocity.x * percentage * strength
+          val vY           = -1f * ball.velocity.y.abs
+          val newVel       = new Vector2f(vX, vY).normalize().mul(prevVelocity.length())
+          ball.velocityX = newVel.x
+          ball.velocityY = newVel.y
 
-        logger.trace(
-          s"direction: $direction, amount: $amount, paddle pos: ${paddle.position}, ball pos: ${ball.position}, ball vel: ${ball.velocity}"
-        )
-      case _                            => // do nothing
+          logger.trace(
+            s"direction: $direction, amount: $amount, paddle pos: ${paddle.position}, ball pos: ${ball.position}, ball vel: ${ball.velocity}"
+          )
+        case _                            => // do nothing
+      }
     }
   }
 
@@ -182,6 +196,7 @@ class BreakoutGame(scene: Scene, width: Float, height: Float) {
     levelOne.blocks.foreach(scene.addEntityToScene)
     levels(level) = levelOne
 
+    ball.stuck = true
     ball.position = new Vector2f(paddle.width / 2, height - paddle.height - ball.height - 0.01f)
     ()
   }
