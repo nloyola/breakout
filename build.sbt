@@ -1,8 +1,8 @@
 import scala.collection.immutable.Seq
 
 lazy val lwjglVersion = "3.2.3"
-lazy val jomlVersion  = "1.9.25"
-lazy val playVersion  = "2.8.1"
+lazy val jomlVersion  = "1.10.0"
+lazy val playVersion  = "2.9.2"
 
 lazy val os = Option(System.getProperty("os.name", ""))
   .map(_.substring(0, 3).toLowerCase) match {
@@ -41,7 +41,7 @@ libraryDependencies ++=
       "org.joml"                    % "joml"            % jomlVersion,
       "com.typesafe.play"          %% "play-json"       % playVersion,
       "ch.qos.logback"              % "logback-classic" % "1.2.3",
-      "org.scalatest"              %% "scalatest"       % "3.1.1" % Test
+      "org.scalatest"              %% "scalatest"       % "3.2.3" % Test
   )
 
 scalacOptions ++=
@@ -67,9 +67,9 @@ javaOptions ++= {
     Seq("-XstartOnFirstThread")
   else
     Seq(
-        // "-Dorg.lwjgl.util.DebugLoader=true",
-        "-Dorg.lwjgl.util.Debug=true",
-        "-Dorg.lwjgl.system.allocator=system"
+      // "-Dorg.lwjgl.util.DebugLoader=true",
+      "-Dorg.lwjgl.util.Debug=true",
+      "-Dorg.lwjgl.system.allocator=system"
     )
 }
 
