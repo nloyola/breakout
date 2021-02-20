@@ -10,26 +10,26 @@ case class PositionConstraints(entity: Entity, left: Float, right: Float, top: F
   override def start(): Unit = {}
 
   override def update(dt: Float): Unit = {
-    val xPos        = entity.transform.position.x
-    val rightMargin = right - entity.transform.scale.x
+    val xPos        = entity.transform.position(0)
+    val rightMargin = right - entity.transform.scale(0)
 
     if (xPos > rightMargin) {
-      entity.transform.position.x = rightMargin
+      entity.transform.position(0) = rightMargin
     }
 
     if (xPos < left) {
-      entity.transform.position.x = left
+      entity.transform.position(0) = left
     }
 
-    val yPos         = entity.transform.position.y
-    val bottomMargin = bottom - entity.transform.scale.y
+    val yPos         = entity.transform.position(1)
+    val bottomMargin = bottom - entity.transform.scale(1)
 
     if (yPos > bottomMargin) {
-      entity.transform.position.y = bottomMargin
+      entity.transform.position(1) = bottomMargin
     }
 
     if (yPos < top) {
-      entity.transform.position.y = top
+      entity.transform.position(1) = top
     }
     ()
   }

@@ -1,54 +1,35 @@
 package breakout.components
 
-import breakout._
 import breakout.entities.Entity
-import org.joml.{ Vector2f, Vector3f }
-import play.api.libs.json._
-//import breakout.entities.BallParticle
+import breeze.linalg._
 
-case class RigidBody(entity: Entity, colliderType: Int, _velocity: Vector3f, friction: Float)
-    extends Component {
+case class RigidBody(entity: Entity, colliderType: Int, friction: Float) extends Component {
+
+  protected val _velocity = DenseVector(0f, 0f, 0f)
 
   protected val typeName = "rigidBody"
 
   override def start(): Unit = {}
 
   override def update(dt: Float): Unit = {
-    // entity match {
-    //   case p: BallParticle =>
-    //     if ((_velocity.x != 0f) || (_velocity.x != 0f) || (_velocity.x != 0f)) {
-    //       org.slf4j.LoggerFactory.getLogger(this.getClass).info(s"---------->  ${_velocity}")
-    //     }
-    //   case _ =>
-    // }
-
-    entity.posOffset(_velocity.x * dt, _velocity.y * dt)
+    entity.position += _velocity.slice(0, 2) * dt
     ()
   }
 
   def velocity = _velocity
 
-  def velocity_=(v: Vector2f) = {
-    _velocity.x = v.x
-    _velocity.y = v.y
-  }
+  def velocity_=(v: DenseVector[Float]) = _velocity := v
 
-  def velocityX = _velocity.x
+  def velocityX = _velocity(0)
 
   def velocityX_=(v: Float) = {
-    _velocity.x = v
+    _velocity(0) = v
   }
 
-  def velocityY = _velocity.y
+  def velocityY = _velocity(1)
 
   def velocityY_=(v: Float) = {
-    _velocity.y = v
+    _velocity(1) = v
   }
-
-}
-
-object RigidBody {
-
-  implicit val rigidBodyFormat: Format[RigidBody] = Json.format[RigidBody]
 
 }

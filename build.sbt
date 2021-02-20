@@ -1,7 +1,6 @@
 import scala.collection.immutable.Seq
 
 lazy val lwjglVersion = "3.2.3"
-lazy val jomlVersion  = "1.10.0"
 lazy val playVersion  = "2.9.2"
 
 lazy val os = Option(System.getProperty("os.name", ""))
@@ -38,7 +37,8 @@ libraryDependencies ++=
       "org.lwjgl"                   % "lwjgl-stb"       % lwjglVersion classifier s"natives-$os",
       "org.lwjgl"                   % "lwjgl-assimp"    % lwjglVersion classifier s"natives-$os",
       "org.lwjgl"                   % "lwjgl-nanovg"    % lwjglVersion classifier s"natives-$os",
-      "org.joml"                    % "joml"            % jomlVersion,
+      "org.scalanlp"               %% "breeze"          % "1.1",
+      "org.scalanlp"               %% "breeze-natives"  % "1.1",
       "com.typesafe.play"          %% "play-json"       % playVersion,
       "ch.qos.logback"              % "logback-classic" % "1.2.3",
       "org.scalatest"              %% "scalatest"       % "3.2.3" % Test

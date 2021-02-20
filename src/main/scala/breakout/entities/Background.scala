@@ -3,8 +3,7 @@ package breakout.entities
 import breakout.Transform
 import breakout.components.{ Sprite, SpriteRenderer }
 import breakout.util.AssetPool
-import org.joml.Vector2f
-import play.api.libs.json._
+import breeze.linalg.DenseVector
 
 case class Background(private val _width: Float, private val _height: Float, protected val _zIndex: Int)
     extends Entity {
@@ -13,18 +12,12 @@ case class Background(private val _width: Float, private val _height: Float, pro
 
   private lazy val tex = AssetPool.texture("assets/images/background.png")
 
-  protected lazy val _transform = Transform(new Vector2f(), new Vector2f(_width, _height))
+  protected lazy val _transform = Transform()
 
-  override def posOffset(x: Float, y: Float): Unit = {
+  override def posOffset(x: Float, y: Float): DenseVector[Float] = {
     throw new Error("background should not move")
   }
 
   addComponent(SpriteRenderer(entity = this, sprite = Sprite(tex)))
-
-}
-
-object Background {
-
-  implicit val backgroundFormat: Format[Background] = Json.format[Background]
 
 }

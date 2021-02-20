@@ -36,7 +36,6 @@ object Window {
     }
 
     currentScene.foreach { s =>
-      s.load()
       s.init()
       s.start()
     }

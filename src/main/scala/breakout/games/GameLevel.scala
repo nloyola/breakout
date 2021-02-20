@@ -1,7 +1,7 @@
 package breakout.games
 
 import breakout.entities.{ Block, BlockBreakable, BlockSolid }
-import org.joml.Vector4f
+import breeze.linalg.DenseVector
 import org.slf4j.LoggerFactory
 
 import scala.collection.mutable.ArrayBuffer
@@ -45,10 +45,10 @@ class GameLevel {
 
           case u =>
             val color = u match {
-              case 2 => new Vector4f(0.2f, 0.6f, 1.0f, 1f)
-              case 3 => new Vector4f(0.0f, 0.7f, 0.0f, 1f)
-              case 4 => new Vector4f(0.8f, 0.8f, 0.4f, 1f)
-              case 5 => new Vector4f(1.0f, 0.5f, 0.0f, 1f)
+              case 2 => DenseVector(0.2f, 0.6f, 1.0f, 1f)
+              case 3 => DenseVector(0.0f, 0.7f, 0.0f, 1f)
+              case 4 => DenseVector(0.8f, 0.8f, 0.4f, 1f)
+              case 5 => DenseVector(1.0f, 0.5f, 0.0f, 1f)
             }
 
             Some(BlockBreakable(color, 1))

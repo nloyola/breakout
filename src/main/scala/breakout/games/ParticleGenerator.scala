@@ -3,7 +3,7 @@ package breakout.games
 import breakout.components.RigidBody
 import breakout.entities.{ BallParticle, Entity }
 import breakout.scenes.Scene
-import org.joml.{ Vector2f, Vector4f }
+import breeze.linalg.DenseVector
 import org.slf4j.LoggerFactory
 
 import scala.collection.mutable.ArrayBuffer
@@ -49,7 +49,7 @@ class ParticleGenerator(scene: Scene) {
     }
 
     newParticles.foreach { particle =>
-      spawn(particle, entity, new Vector2f(entity.scale.x / 4f, entity.scale.y / 4f))
+      spawn(particle, entity, entity.scale / 4f)
     }
 
     // if (newParticles.size > 0) {
@@ -65,15 +65,15 @@ class ParticleGenerator(scene: Scene) {
     // }
   }
 
-  private def spawn(particle: BallParticle, entity: Entity, offset: Vector2f): Unit = {
+  private def spawn(particle: BallParticle, entity: Entity, offset: DenseVector[Float]): Unit = {
     entity.component[RigidBody]().foreach { rb =>
       val rand   = scala.util.Random.nextFloat() * 5f
       val rColor = 0.5f + scala.util.Random.nextFloat()
-      particle.position = new Vector2f(entity.position).add(rand, rand).add(offset)
-      particle.scale(entity.scale.x / 2.5f, entity.scale.y / 2.5f)
+      particle.position = entity.position + DenseVector(rand, rand) + offset
+      particle.scale := entity.scale / 2.5f
       particle.life = 1f
-      particle.velocity = new Vector2f(rb.velocity.x, rb.velocity.y).mul(0.1f)
-      particle.setColor(new Vector4f(rColor, rColor, rColor, 1f))
+      particle.velocity = rb.velocity * 0.1f
+      particle.color := DenseVector(rColor, rColor, rColor, 1f)
       scene.addEntityToScene(particle)
     }
   }

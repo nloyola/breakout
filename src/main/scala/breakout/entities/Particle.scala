@@ -3,8 +3,7 @@ package breakout.entities
 import breakout.Transform
 import breakout.components.{ Sprite, SpriteRenderer }
 import breakout.util.AssetPool
-import org.joml.{ Vector2f, Vector4f }
-//import org.slf4j.LoggerFactory
+import breeze.linalg.DenseVector
 
 trait Particle extends Entity {
 
@@ -26,7 +25,7 @@ case class BallParticle(protected var _life: Float, protected val _zIndex: Int) 
 
   override val name: String = "BallParticle"
 
-  override protected val _transform: Transform = Transform(new Vector2f(), new Vector2f())
+  override protected val _transform: Transform = Transform()
 
   private val sprite = Sprite(AssetPool.texture("assets/images/particle.png"))
 
@@ -34,7 +33,7 @@ case class BallParticle(protected var _life: Float, protected val _zIndex: Int) 
 
   //private val rigidBody = RigidBody(this, 1, new Vector3f(), 0f)
 
-  private val _velocity = new Vector2f()
+  private val _velocity = DenseVector(0f, 0f, 0f)
 
   val id = BallParticle.id
 
@@ -51,24 +50,23 @@ case class BallParticle(protected var _life: Float, protected val _zIndex: Int) 
 
   def velocity = _velocity
 
-  def setColor(c: Vector4f): Unit = spriteRenderer.setColor(c)
+  def color = spriteRenderer.color
 
-  def velocity_=(v: Vector2f) = {
-    velocity.x = v.x
-    velocity.y = v.y
-  }
+  def color_=(c: DenseVector[Float]) = spriteRenderer.color := c
+
+  def velocity_=(v: DenseVector[Float]) = velocity := v
 
   override def update(dt: Float): Unit = {
     super.update(dt)
 
-    position = new Vector2f(position).sub(new Vector2f(_velocity).mul(dt))
+    position -= _velocity.slice(0, 2) * dt
 
     if (_life > 0f) {
       lifeDecrease(dt * 3)
-      spriteRenderer.setColor(spriteRenderer.color.x,
-                              spriteRenderer.color.y,
-                              spriteRenderer.color.z,
-                              spriteRenderer.color.w - 8f * dt
+      spriteRenderer.color := DenseVector(spriteRenderer.color(0),
+                                          spriteRenderer.color(1),
+                                          spriteRenderer.color(2),
+                                          spriteRenderer.color(3) - 8f * dt
       )
     }
 
@@ -76,6 +74,8 @@ case class BallParticle(protected var _life: Float, protected val _zIndex: Int) 
     //   val lifeSpan = (System.nanoTime() - startTime) / 1000000
     //   logger.info(s"particle: id: $id, life span: ${lifeSpan} ms")
     // }
+
+    ()
   }
 
   override def toString: String = s"particle: id: $id"

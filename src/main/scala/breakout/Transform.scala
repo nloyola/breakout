@@ -1,15 +1,14 @@
 package breakout
 
-import org.joml.Vector2f
-import play.api.libs.json._
+import breeze.linalg._
 
-case class Transform(position: Vector2f, scale: Vector2f) {
+case class Transform(position: DenseVector[Float], scale: DenseVector[Float]) {
 
-  def copy(): Transform = Transform(new Vector2f(position), new Vector2f(scale))
+  def copy(): Transform = Transform(position.copy, scale.copy)
 
-  def posOffset(x: Float, y: Float) = position.set(position.x + x, position.y + y)
+  def posOffset(x: Float, y: Float) = position += DenseVector(x, y)
 
-  def setScale(x: Float, y: Float) = scale.set(x, y)
+  def setScale(x: Float, y: Float) = scale := DenseVector(x, y)
 
   override def equals(that: Any): Boolean = {
     that match {
@@ -25,10 +24,8 @@ case class Transform(position: Vector2f, scale: Vector2f) {
 
 object Transform {
 
-  def apply(): Transform = Transform(new Vector2f(), new Vector2f())
+  def apply(): Transform = Transform(DenseVector(0f, 0f), DenseVector(0f, 0f))
 
-  def apply(position: Vector2f): Transform = Transform(position, new Vector2f())
-
-  implicit val transformFormat: Format[Transform] = Json.format[Transform]
+  def apply(position: DenseVector[Float]): Transform = Transform(position, DenseVector(0f, 0f))
 
 }

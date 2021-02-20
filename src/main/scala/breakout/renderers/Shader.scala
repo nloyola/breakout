@@ -1,6 +1,6 @@
 package breakout.renderers
 
-import org.joml._
+import breeze.linalg._
 import org.lwjgl.BufferUtils
 import org.lwjgl.opengl.GL11.GL_FALSE
 import org.lwjgl.opengl.GL20.{ glGetShaderInfoLog, _ }
@@ -97,11 +97,14 @@ class Shader(val filepath: String) {
     beingUsed = false
   }
 
-  def uploadMat4f(varName: String, mat4: Matrix4f): Unit = {
+  def uploadDenseMatrix(varName: String, mat4: DenseMatrix[Float]): Unit = {
+    if ((mat4.rows != 4) || (mat4.cols != 4)) {
+      throw new Error("invalid dimensions for matrix")
+    }
     val varLocation = glGetUniformLocation(shaderProgramID, varName)
     use()
     val matBuffer   = BufferUtils.createFloatBuffer(16)
-    mat4.get(matBuffer)
+    mat4.toArray.zipWithIndex.foreach { case (v, index) => matBuffer.put(index, v) }
     glUniformMatrix4fv(varLocation, false, matBuffer)
   }
 

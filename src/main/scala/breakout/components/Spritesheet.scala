@@ -1,7 +1,7 @@
 package breakout.components
 
 import breakout.renderers.Texture
-import org.joml.Vector2f
+import breeze.linalg.DenseVector
 import org.slf4j.LoggerFactory
 
 import scala.collection.mutable.ArrayBuffer
@@ -30,10 +30,10 @@ class Spritesheet(
       val leftX   = currentX / texture.width.toFloat
       val bottomY = currentY / texture.height.toFloat
 
-      val texCoords = Array[Vector2f](new Vector2f(rightX, topY),
-                                      new Vector2f(rightX, bottomY),
-                                      new Vector2f(leftX, bottomY),
-                                      new Vector2f(leftX, topY)
+      val texCoords = Array(DenseVector(rightX, topY),
+                            DenseVector(rightX, bottomY),
+                            DenseVector(leftX, bottomY),
+                            DenseVector(leftX, topY)
       )
 
       //logger.debug(s"init: $leftX, $topY, $leftX, $bottomY")

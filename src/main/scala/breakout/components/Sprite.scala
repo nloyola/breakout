@@ -1,11 +1,13 @@
 package breakout.components
 
-import breakout._
 import breakout.renderers.Texture
-import org.joml.Vector2f
-import play.api.libs.json._
+import breeze.linalg.DenseVector
 
-final case class Sprite(width: Int, height: Int, texture: Option[Texture], texCoords: Array[Vector2f]) {
+final case class Sprite(
+    width:     Int,
+    height:    Int,
+    texture:   Option[Texture],
+    texCoords: Array[DenseVector[Float]]) {
 
   def texId(): Option[Int] = texture.map(_.id)
 
@@ -15,22 +17,20 @@ final case class Sprite(width: Int, height: Int, texture: Option[Texture], texCo
 
 object Sprite {
 
-  def apply(): Sprite =
-    Sprite(width = 0,
-           height = 0,
-           texture = None,
-           texCoords =
-             Array[Vector2f](new Vector2f(1, 1), new Vector2f(1, 0), new Vector2f(0, 0), new Vector2f(0, 1))
-    )
-
   def apply(texture: Texture): Sprite =
     Sprite(width = 0,
            height = 0,
            texture = Some(texture),
            texCoords =
-             Array[Vector2f](new Vector2f(1, 1), new Vector2f(1, 0), new Vector2f(0, 0), new Vector2f(0, 1))
+             Array(DenseVector(1f, 1f), DenseVector(1f, 0f), DenseVector(0f, 0f), DenseVector(0f, 1f))
     )
 
-  implicit val spriteFormat: Format[Sprite] = Json.format[Sprite]
+  def apply(): Sprite =
+    Sprite(width = 0,
+           height = 0,
+           texture = None,
+           texCoords =
+             Array(DenseVector(1f, 1f), DenseVector(1f, 0f), DenseVector(0f, 0f), DenseVector(0f, 1f))
+    )
 
 }

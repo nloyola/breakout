@@ -3,9 +3,8 @@ package breakout.scenes
 import breakout.Camera
 import breakout.games.BreakoutGame
 import breakout.util.AssetPool
-import org.joml.{ Vector2f }
+import breeze.linalg._
 import org.slf4j.LoggerFactory
-// import breakout.entities.BallParticle
 
 class BreakoutScene extends Scene {
 
@@ -15,7 +14,7 @@ class BreakoutScene extends Scene {
 
   private val height = 720f
 
-  protected val _camera = new Camera(new Vector2f(0f, 0f), width, height)
+  protected val _camera = new Camera(DenseVector(0f, 0f), width, height)
 
   private lazy val game = new BreakoutGame(this, width, height)
 

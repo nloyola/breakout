@@ -3,14 +3,13 @@ package breakout.entities
 import breakout.Transform
 import breakout.components.{ RigidBody, Sprite, SpriteRenderer }
 import breakout.util.AssetPool
-import org.joml.{ Vector2f, Vector3f, Vector4f }
-import play.api.libs.json._
+import breeze.linalg._
 
 trait Block extends Entity {
 
-  protected lazy val _transform = Transform(new Vector2f(), new Vector2f())
+  protected lazy val _transform = Transform()
 
-  protected val rigidBody = RigidBody(this, 1, new Vector3f(), 0f)
+  protected val rigidBody = RigidBody(this, 1, 0f)
 
 }
 
@@ -28,11 +27,9 @@ object BlockSolid {
 
   val sprite = Sprite(AssetPool.texture("assets/images/block_solid.png"))
 
-  implicit val blockFormat: Format[BlockSolid] = Json.format[BlockSolid]
-
 }
 
-case class BlockBreakable(protected val color: Vector4f, protected val _zIndex: Int) extends Block {
+case class BlockBreakable(color: DenseVector[Float], _zIndex: Int) extends Block {
 
   val name = "BlockBreakable"
 
@@ -44,7 +41,7 @@ case class BlockBreakable(protected val color: Vector4f, protected val _zIndex: 
 
   def destroyed_=(d: Boolean) = _destroyed = d
 
-  renderer.setColor(color)
+  renderer.color := color
 
   addComponent(renderer)
   addComponent(rigidBody)
@@ -52,10 +49,7 @@ case class BlockBreakable(protected val color: Vector4f, protected val _zIndex: 
 }
 
 object BlockBreakable {
-  import breakout._
 
   val sprite = Sprite(AssetPool.texture("assets/images/block.png"))
-
-  implicit val blockFormat: Format[BlockBreakable] = Json.format[BlockBreakable]
 
 }

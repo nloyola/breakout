@@ -4,7 +4,7 @@ import breakout.components.PositionConstraints
 import breakout.entities.{ Background, Ball, Block, BlockBreakable, Paddle }
 import breakout.scenes.Scene
 import breakout.{ Collision, CollisionDetection, East, KeyListener, North, South, West }
-import org.joml.{ Vector2f }
+import breeze.linalg._
 import org.lwjgl.glfw.GLFW.{ GLFW_KEY_A, GLFW_KEY_D, GLFW_KEY_SPACE }
 import org.slf4j.LoggerFactory
 
@@ -24,7 +24,7 @@ class BreakoutGame(scene: Scene, width: Float, height: Float) {
 
   private val paddleAbsVelocity = 500f
 
-  private val ballInitialVelocity = new Vector2f(100f, -350f)
+  private val ballInitialVelocity = DenseVector(100f, -350f, 0f)
 
   private val levels = ArrayBuffer.empty[GameLevel]
 
@@ -47,7 +47,7 @@ class BreakoutGame(scene: Scene, width: Float, height: Float) {
     val background = Background(width, height, -10)
     background.scale(width, height)
 
-    paddle.posOffset(0, height - paddleHeight)
+    paddle.position := DenseVector(0f, height - paddleHeight)
     paddle.addComponent(
       PositionConstraints(entity = paddle, left = 0, right = width, top = 0, bottom = height)
     )
@@ -95,11 +95,11 @@ class BreakoutGame(scene: Scene, width: Float, height: Float) {
     val brokenBlocks = scene.entities.collect { case b: BlockBreakable => b }.filter(_.destroyed)
     brokenBlocks.foreach { block =>
       scene.removeEntity(block)
-      logger.debug(s"bock removed: pos: ${block.position.x}, ${block.position.y}")
+      logger.debug(s"bock removed: pos: ${block.position}")
     }
 
     // did ball go past the bottom?
-    if (ball.position.y >= height) {
+    if (ball.position(1) >= height) {
       resetLevel()
       resetPlayer()
     }
@@ -109,23 +109,23 @@ class BreakoutGame(scene: Scene, width: Float, height: Float) {
     logger.trace(s"ball velocity: ${ball.velocity}")
 
     if (ball.stuck) {
-      ball.position = new Vector2f(paddle.position.x + paddle.scale.x / 2f - ball.radius,
-                                   paddle.position.y - paddle.scale.y / 2f - 3
+      ball.position := paddle.position + DenseVector(paddle.scale(0) / 2f - ball.radius,
+                                                     -paddle.scale(1) / 2f - ball.radius / 2f + 3
       )
-      ball.velocity = new Vector2f()
+      ball.velocity := DenseVector.zeros[Float](3)
     } else {
-      val xPos        = ball.position.x
+      val xPos        = ball.position(0)
       val rightMargin = width - ball.radius
 
       if ((xPos > rightMargin) || (xPos < 0)) {
-        ball.velocity = new Vector2f(-ball.velocity.x, ball.velocity.y)
+        ball.velocity := DenseVector(-ball.velocity(0), ball.velocity(1), 0f)
       }
 
-      val yPos = ball.position.y
+      val yPos = ball.position(1)
       //val bottomMargin = height - ball.radius
 
       if (yPos < 0) {
-        ball.velocity = new Vector2f(ball.velocity.x, -ball.velocity.y)
+        ball.velocity = DenseVector(ball.velocity(0), -ball.velocity(1), 0f)
       }
     }
     ()
@@ -144,7 +144,7 @@ class BreakoutGame(scene: Scene, width: Float, height: Float) {
             block match {
               case b: BlockBreakable =>
                 b.destroyed = true
-                logger.debug(s"broken block: pos: ${b.position.x}, ${b.position.y}")
+                logger.debug(s"broken block: pos: ${b.position}")
               case _ =>
               //do nothing
             }
@@ -152,7 +152,7 @@ class BreakoutGame(scene: Scene, width: Float, height: Float) {
             direction match {
               case _: East | _: West =>
                 ball.velocityX = -ball.velocityX
-                val penetration = ball.radius - amount.x.abs
+                val penetration = ball.radius - amount(0).abs
 
                 direction match {
                   case _: East => ball.posOffset(penetration, 0)
@@ -161,7 +161,7 @@ class BreakoutGame(scene: Scene, width: Float, height: Float) {
 
               case _: North | _: South =>
                 ball.velocityY = -ball.velocityY
-                val penetration = ball.radius - amount.y.abs
+                val penetration = ball.radius - amount(1).abs
 
                 direction match {
                   case _: North => ball.posOffset(0, -penetration)
@@ -178,16 +178,16 @@ class BreakoutGame(scene: Scene, width: Float, height: Float) {
     if (!ball.stuck) {
       CollisionDetection.checkCollision(ball, paddle) match {
         case Collision(direction, amount) =>
-          val centerPaddle = paddle.position.x + paddle.scale.x / 2f
-          val distance     = ball.position.x + ball.radius - centerPaddle
-          val percentage   = 2f * distance / paddle.scale.x
+          val centerPaddle = paddle.position(0) + paddle.scale(0) / 2f
+          val distance     = ball.position(0) + ball.radius - centerPaddle
+          val percentage   = 2f * distance / paddle.scale(0)
           val strength     = 2f
-          val prevVelocity = new Vector2f(ball.velocity.x, ball.velocity.y)
-          val vX           = ballInitialVelocity.x * percentage * strength
-          val vY           = -1f * ball.velocity.y.abs
-          val newVel       = new Vector2f(vX, vY).normalize().mul(prevVelocity.length())
-          ball.velocityX = newVel.x
-          ball.velocityY = newVel.y
+          val magnitude    = norm(ball.velocity).toFloat
+          val vX           = ballInitialVelocity(0) * percentage * strength
+          val vY           = -1f * ball.velocity(1).abs
+          val newVel       = normalize(DenseVector(vX, vY, 0)) * magnitude
+
+          ball.velocity := newVel
 
           logger.trace(
             s"direction: $direction, amount: $amount, paddle pos: ${paddle.position}, ball pos: ${ball.position}, ball vel: ${ball.velocity}"
@@ -206,12 +206,12 @@ class BreakoutGame(scene: Scene, width: Float, height: Float) {
     levels(level) = levelOne
 
     ball.stuck = true
-    ball.position = new Vector2f(paddle.width / 2, height - paddle.height - ball.height - 0.01f)
+    ball.position := DenseVector(paddle.width / 2f, height - paddle.height - ball.height - 0.01f)
     ()
   }
 
   private def resetPlayer(): Unit = {
-    paddle.position = new Vector2f(0, height - paddleHeight)
+    paddle.position := DenseVector(0, height - paddleHeight)
     ()
   }
 

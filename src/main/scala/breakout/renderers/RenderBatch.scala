@@ -112,9 +112,7 @@ class RenderBatch(private val maxBatchSize: Int, private val zIndex: Int) extend
         val index = sprites.indexOf(sr)
         sprites.slice(index + 1, sprites.length).foreach(_.setDirty())
         sprites -= sr
-        logger.trace(
-          s"destroyEntity: $entity, position: ${entity.position.x},  ${entity.position.y}, index: $index"
-        )
+        logger.trace(s"destroyEntity: $entity, position: ${entity.position}, index: $index")
       }
     }
     ()
@@ -139,8 +137,8 @@ class RenderBatch(private val maxBatchSize: Int, private val zIndex: Int) extend
     }
 
     shader.use()
-    shader.uploadMat4f("uProjection", Window.scene.camera.projectionMatrix)
-    shader.uploadMat4f("uView", Window.scene.camera.getViewMatrix())
+    shader.uploadDenseMatrix("uProjection", Window.scene.camera.projectionMatrix)
+    shader.uploadDenseMatrix("uView", Window.scene.camera.getViewMatrix())
 
     textures.zipWithIndex.foreach { case (t, i) =>
       logger.trace(s"render: index: $i, texture: $t")
@@ -206,34 +204,30 @@ class RenderBatch(private val maxBatchSize: Int, private val zIndex: Int) extend
     val transform = entity.transform
 
     // entity match {
-    //   case e: BallParticle =>
-    //     logger.info(
-    //       s"ball particle: position: ${entity.position.x}, ${entity.position.y}, scale: ${entity.scale.x}, ${entity.scale.y}"
-    //     )
+    //   case e: breakout.entities.Ball =>
+    //     logger.info(s"ball position: ${entity.transform}")
     //   case _ =>
     // }
 
-    logger.trace(
-      s"entity name: ${entity.name}, entity pos: (${entity.position.x}, ${entity.position.y}), index: $index"
-    )
+    logger.trace(s"entity name: ${entity.name}, entity pos: ${entity.position}, index: $index")
 
     // Add vertices with the appropriate properties
     Array((0, 1f, 1f), (1, 1f, 0f), (2, 0f, 0f), (3, 0f, 1f)).foreach { case (v, xAdd, yAdd) =>
       // Load position
-      vertices(offset) = transform.position.x + (xAdd * transform.scale.x)
-      vertices(offset + 1) = transform.position.y + (yAdd * transform.scale.y)
+      vertices(offset) = transform.position(0) + (xAdd * transform.scale(0))
+      vertices(offset + 1) = transform.position(1) + (yAdd * transform.scale(1))
 
       logger.trace(s"${entity.name}, $index, $v, ${vertices(offset)}, ${vertices(offset + 1)}")
 
       // Load color
-      vertices(offset + 2) = color.x
-      vertices(offset + 3) = color.y
-      vertices(offset + 4) = color.z
-      vertices(offset + 5) = color.w
+      vertices(offset + 2) = color(0)
+      vertices(offset + 3) = color(1)
+      vertices(offset + 4) = color(2)
+      vertices(offset + 5) = color(3)
 
       // Load texture coordinates
-      vertices(offset + 6) = texCoords(v).x
-      vertices(offset + 7) = texCoords(v).y
+      vertices(offset + 6) = texCoords(v)(0)
+      vertices(offset + 7) = texCoords(v)(1)
 
       // Load texture id
       vertices(offset + 8) = texId.toFloat

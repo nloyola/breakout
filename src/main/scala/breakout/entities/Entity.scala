@@ -2,8 +2,7 @@ package breakout.entities
 
 import breakout.Transform
 import breakout.components.Component
-import org.joml.Vector2f
-import play.api.libs.json._
+import breeze.linalg._
 
 import scala.collection.mutable.ArrayBuffer
 import scala.reflect.ClassTag
@@ -48,25 +47,21 @@ trait Entity {
 
   def update(dt: Float): Unit = _components.foreach(_.update(dt))
 
-  def width = _transform.scale.x
+  def width = _transform.scale(0)
 
-  def height = _transform.scale.y
+  def height = _transform.scale(1)
 
   def position = _transform.position
 
-  def position_=(pos: Vector2f) = _transform.position.set(pos)
+  def position_=(pos: DenseVector[Float]) = _transform.position := pos
+
+  def posOffset(x: Float, y: Float): DenseVector[Float] = {
+    _transform.position += DenseVector(x, y)
+  }
 
   def scale = _transform.scale
 
-  def posOffset(x: Float, y: Float): Unit = {
-    _transform.posOffset(x, y)
-    ()
-  }
-
-  def scale(x: Float, y: Float): Unit = {
-    _transform.setScale(x, y)
-    ()
-  }
+  def scale(x: Float, y: Float) = _transform.scale := DenseVector(x, y)
 
   override def equals(that: Any): Boolean = {
     that match {
@@ -79,27 +74,4 @@ trait Entity {
 
   override def toString: String = s"name: $name, components: ${_components.length}, zIndex: $zIndex"
 
-}
-
-object Entity {
-
-  implicit val abstractGameObjectFormat: Format[Entity] = new Format[Entity] {
-
-    override def writes(c: Entity): JsValue = {
-      val objJson = c match {
-        case i: GameObject => Json.toJson(i)
-        case i: Paddle     => Json.toJson(i)
-        case _ => JsNull
-      }
-
-      Json.obj("name" -> c.name) ++ objJson.as[JsObject]
-    }
-
-    override def reads(json: JsValue): JsResult[Entity] =
-      (json \ "name") match {
-        case JsDefined(JsString("spriteRenderer")) => json.validate[GameObject]
-        case JsDefined(JsString("rigidBody"))      => json.validate[Paddle]
-        case _                                     => JsError("error")
-      }
-  }
 }

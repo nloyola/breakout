@@ -3,11 +3,10 @@ package breakout.components
 import breakout._
 import breakout.entities.Entity
 import breakout.renderers.Texture
-import org.joml.{ Vector2f, Vector4f }
+import breeze.linalg.DenseVector
 import org.slf4j.LoggerFactory
-import play.api.libs.json._
 
-case class SpriteRenderer(entity: Entity, sprite: Sprite, color: Vector4f) extends Component {
+case class SpriteRenderer(entity: Entity, sprite: Sprite, color: DenseVector[Float]) extends Component {
 
   protected val log = LoggerFactory.getLogger(this.getClass)
 
@@ -30,21 +29,7 @@ case class SpriteRenderer(entity: Entity, sprite: Sprite, color: Vector4f) exten
 
   def texture: Option[Texture] = sprite.texture
 
-  def texCoords: Array[Vector2f] = sprite.texCoords
-
-  def setColor(c: Vector4f): Unit = {
-    if (!color.equals(c)) {
-      color.set(c)
-      _isDirty = true
-    }
-  }
-
-  def setColor(r: Float, g: Float, b: Float, a: Float): Unit = {
-    if (!color.equals(r, g, b, a)) {
-      color.set(r, g, b, a)
-      _isDirty = true
-    }
-  }
+  def texCoords: Array[DenseVector[Float]] = sprite.texCoords
 
   def isDirty: Boolean = _isDirty
 
@@ -68,10 +53,9 @@ case class SpriteRenderer(entity: Entity, sprite: Sprite, color: Vector4f) exten
 object SpriteRenderer {
 
   def apply(entity: Entity, sprite: Sprite): SpriteRenderer =
-    SpriteRenderer(entity = entity, sprite = sprite, color = new Vector4f(1, 1, 1, 1))
+    SpriteRenderer(entity = entity, sprite = sprite, color = DenseVector(1f, 1f, 1f, 1f))
 
-  def apply(entity: Entity, color: Vector4f): SpriteRenderer = SpriteRenderer(entity, Sprite(), color)
-
-  implicit val spriteRendererFormat: Format[SpriteRenderer] = Json.format[SpriteRenderer]
+  def apply(entity: Entity, color: DenseVector[Float]): SpriteRenderer =
+    SpriteRenderer(entity, Sprite(), color)
 
 }
