@@ -2,7 +2,7 @@ package breakout.entities
 
 import breakout.Transform
 
-case class GameObject(name: String, _transform: Transform, _zIndex: Int) extends Entity {}
+case class GameObject(name: String, transform: Transform, zIndex: Int) extends Entity {}
 
 object GameObject {
 

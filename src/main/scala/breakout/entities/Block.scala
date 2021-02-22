@@ -7,13 +7,13 @@ import breeze.linalg._
 
 trait Block extends Entity {
 
-  protected lazy val _transform = Transform()
+  val transform = Transform()
 
   protected val rigidBody = RigidBody(this, 1, 0f)
 
 }
 
-case class BlockSolid(protected val _zIndex: Int) extends Block() {
+case class BlockSolid(zIndex: Int) extends Block() {
 
   override val name = "BlockSolid"
 
@@ -29,7 +29,7 @@ object BlockSolid {
 
 }
 
-case class BlockBreakable(color: DenseVector[Float], _zIndex: Int) extends Block {
+case class BlockBreakable(color: DenseVector[Float], zIndex: Int) extends Block {
 
   val name = "BlockBreakable"
 

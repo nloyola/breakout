@@ -56,7 +56,7 @@ class GameLevel {
 
         block.map { b =>
           b.posOffset(blockWidth * col, blockHeight * row)
-          b.scale(blockWidth, blockHeight)
+          b.scale = (blockWidth, blockHeight)
           _blocks += b
 
           logger.trace(s"$row, $col, ${blockWidth * col}, ${blockHeight * row}, $blockWidth, $blockHeight")

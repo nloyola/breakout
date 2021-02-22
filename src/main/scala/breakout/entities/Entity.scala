@@ -11,67 +11,63 @@ trait Entity {
 
   val name: String
 
-  protected val _transform: Transform
+  val transform: Transform
 
-  protected val _zIndex: Int
+  val zIndex: Int
 
-  protected val _components = ArrayBuffer.empty[Component]
-
-  def transform = _transform
-
-  def zIndex = _zIndex
-
-  def components = _components
+  protected val components = ArrayBuffer.empty[Component]
 
   def component[T]()(implicit tag: ClassTag[T]): Option[T] = {
-    _components.find {
+    components.find {
       case e: T => true
       case _ => false
     } map { _.asInstanceOf[T] }
   }
 
   def addComponent(c: Component): Unit = {
-    _components += c
+    components += c
     ()
   }
 
   def removeComponent[T]()(implicit tag: ClassTag[T]): Unit = {
-    _components.filter {
+    components.filter {
       case e: T => true
       case _ => false
     }
     ()
   }
 
-  def start(): Unit = _components.foreach(_.start())
+  def start(): Unit = components.foreach(_.start())
 
-  def update(dt: Float): Unit = _components.foreach(_.update(dt))
+  def update(dt: Float): Unit = components.foreach(_.update(dt))
 
-  def width = _transform.scale(0)
+  def width = transform.scale(0)
 
-  def height = _transform.scale(1)
+  def height = transform.scale(1)
 
-  def position = _transform.position
+  def position = transform.position
 
-  def position_=(pos: DenseVector[Float]) = _transform.position := pos
+  def position_=(pos: DenseVector[Float]) = transform.position := pos
 
-  def posOffset(x: Float, y: Float): DenseVector[Float] = {
-    _transform.position += DenseVector(x, y)
+  def posOffset(x: Float, y: Float): DenseVector[Float] = transform.position += DenseVector(x, y)
+
+  def scale = transform.scale
+
+  def scale_=(t: (Float, Float)) = {
+    t match {
+      case (x, y) => transform.scale := DenseVector(x, y)
+    }
   }
-
-  def scale = _transform.scale
-
-  def scale(x: Float, y: Float) = _transform.scale := DenseVector(x, y)
 
   override def equals(that: Any): Boolean = {
     that match {
-      case e: Entity => (name == e.name) && (_transform == e._transform)
+      case e: Entity => (name == e.name) && (transform == e.transform)
       case _ => false
     }
   }
 
-  override def hashCode: Int = 41 * name.hashCode + _transform.position.hashCode
+  override def hashCode: Int = 41 * name.hashCode + transform.position.hashCode
 
-  override def toString: String = s"name: $name, components: ${_components.length}, zIndex: $zIndex"
+  override def toString: String = s"name: $name, components: ${components.length}, zIndex: $zIndex"
 
 }

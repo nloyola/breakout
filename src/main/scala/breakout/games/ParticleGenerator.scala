@@ -21,7 +21,7 @@ class ParticleGenerator(scene: Scene) {
   def init(zIndex: Int): Unit = {
     logger.debug("init")
     (0 until maxParticles).foreach { index =>
-      val particle = BallParticle(0f, zIndex)
+      val particle = BallParticle(zIndex)
       inactiveBallParticles += particle
     }
   }
@@ -71,7 +71,7 @@ class ParticleGenerator(scene: Scene) {
       val rColor = 0.5f + scala.util.Random.nextFloat()
       particle.position = entity.position + DenseVector(rand, rand) + offset
       particle.scale := entity.scale / 2.5f
-      particle.life = 1f
+      particle.makeAlive()
       particle.velocity = rb.velocity * 0.1f
       particle.color := DenseVector(rColor, rColor, rColor, 1f)
       scene.addEntityToScene(particle)

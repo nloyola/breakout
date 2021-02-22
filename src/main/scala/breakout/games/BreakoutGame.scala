@@ -36,7 +36,7 @@ class BreakoutGame(scene: Scene, width: Float, height: Float) {
 
   private val paddleHeight = height / 15f
 
-  private val paddle: Paddle = Paddle(paddleWidth, paddleHeight, 1)
+  private val paddle: Paddle = Paddle(1)
 
   private val ball = Ball(width / 100f, 3)
 
@@ -44,10 +44,11 @@ class BreakoutGame(scene: Scene, width: Float, height: Float) {
 
   def init(): Unit = {
     logger.debug("init")
-    val background = Background(width, height, -10)
-    background.scale(width, height)
+    val background = Background(-10)
+    background.scale = (width, height)
 
     paddle.position := DenseVector(0f, height - paddleHeight)
+    paddle.scale = (paddleWidth, paddleHeight)
     paddle.addComponent(
       PositionConstraints(entity = paddle, left = 0, right = width, top = 0, bottom = height)
     )

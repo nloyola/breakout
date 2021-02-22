@@ -7,25 +7,27 @@ import breeze.linalg.DenseVector
 
 trait Particle extends Entity {
 
-  protected var _life: Float
+  protected var life: Float
 
-  def life = _life
+  def makeAlive() = life = 1f
 
-  def life_=(l: Float) = _life = l
+  def lifeDecrease(amount: Float) = life = life - amount
 
-  def lifeDecrease(amount: Float) = _life = _life - amount
+  def isAlive(): Boolean = life > 0f
 
-  def isDead(): Boolean = _life <= 0f
+  def isDead(): Boolean = !isAlive()
 
 }
 
-case class BallParticle(protected var _life: Float, protected val _zIndex: Int) extends Particle {
+case class BallParticle(zIndex: Int) extends Particle {
 
   //private val logger = LoggerFactory.getLogger(this.getClass)
 
+  protected var life = 0f
+
   override val name: String = "BallParticle"
 
-  override protected val _transform: Transform = Transform()
+  override val transform: Transform = Transform()
 
   private val sprite = Sprite(AssetPool.texture("assets/images/particle.png"))
 
@@ -38,15 +40,6 @@ case class BallParticle(protected var _life: Float, protected val _zIndex: Int) 
   val id = BallParticle.id
 
   // private var startTime = 0L
-
-  override def life_=(l: Float) = {
-    super.life = l
-
-    // if (_life >= 1f) {
-    //   startTime = System.nanoTime()
-    //   logger.info(s"particle started: id: $id, life: $l")
-    // }
-  }
 
   def velocity = _velocity
 
@@ -61,7 +54,7 @@ case class BallParticle(protected var _life: Float, protected val _zIndex: Int) 
 
     position -= _velocity.slice(0, 2) * dt
 
-    if (_life > 0f) {
+    if (isAlive()) {
       lifeDecrease(dt * 3)
       spriteRenderer.color := DenseVector(spriteRenderer.color(0),
                                           spriteRenderer.color(1),

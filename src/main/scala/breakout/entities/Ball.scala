@@ -5,11 +5,11 @@ import breakout.components.{ RigidBody, Sprite, SpriteRenderer }
 import breakout.util.AssetPool
 import breeze.linalg._
 
-case class Ball(private val _radius: Float, protected val _zIndex: Int) extends Entity {
+case class Ball(radius: Float, zIndex: Int) extends Entity {
 
   override val name: String = "Ball"
 
-  override protected val _transform: Transform =
+  override val transform: Transform =
     Transform(DenseVector(0f, 0f), DenseVector(2f * radius, 2 * radius))
 
   private val sprite = Sprite(AssetPool.texture("assets/images/ball.png"))
@@ -35,10 +35,6 @@ case class Ball(private val _radius: Float, protected val _zIndex: Int) extends 
   def stuck = _stuck
 
   def stuck_=(v: Boolean) = _stuck = v
-
-  def radius = _radius
-
-  def radius_=(r: Float) = _transform.setScale(r / 2f, r / 2f)
 
   addComponent(spriteRenderer)
   addComponent(rigidBody)
